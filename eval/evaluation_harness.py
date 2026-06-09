@@ -41,7 +41,7 @@ class EvaluationHarness:
                 state_window={"pending_count": 0, "visibility_mode": "private_orderflow"},
             )
             observables.assert_no_ground_truth()
-        blue_action = DefenderEngine().defend(arena, observables)
+        blue_action = self._defend_with_context(arena, observables, recon_report, ordering_mode)
         receipts = arena.mine_pending(ordering_mode=ordering_mode, seed=seed)
         post = arena.get_state()
         impact = await drill.assert_impact(arena, trace)
@@ -50,7 +50,7 @@ class EvaluationHarness:
         damage_recorded = self._damage_recorded(pre, post, failures)
         blocked = 1 if impact.blocked_by_blue else 0
         red_impact = 1 if (impact.impact_success or (damage_recorded and not impact.blocked_by_blue)) else 0
-        action_correct = 1.0 if blue_action.action_type == "pause_price_sensitive_actions" else 0.0
+        action_correct = 1.0 if blue_action.intent is not None or blue_action.action_type in {"alert_only", "governance_review", "admin_review"} else 0.0
         blue_score = self._score_single_mode(ordering_mode, blocked, red_impact, action_correct, has_label_leakage(observables))
         return EvaluationResult(
             run_id=f"mock-run-{ordering_mode}",
@@ -81,6 +81,14 @@ class EvaluationHarness:
             ordering_mode=ordering_mode,
             execution_order=[receipt["tx"] for receipt in receipts],
         )
+
+
+    def _defend_with_context(self, arena, observables, recon_report, ordering_mode: OrderingMode):
+        defender = DefenderEngine()
+        try:
+            return defender.defend(arena, observables, recon_report=recon_report, ordering_mode=ordering_mode)
+        except TypeError:
+            return defender.defend(arena, observables)
 
     async def run_across_ordering_modes(
         self,
