@@ -14,9 +14,12 @@ class ExecutableOracleDivergenceDrill:
 
     async def precheck(self, arena, target) -> DrillPrecheck:
         arena.safety_guard.assert_drill_allowed(self, arena, target)
+        arena.bind_target(target)
         return DrillPrecheck(True)
 
     async def prepare(self, arena, target) -> DrillContext:
+        arena.safety_guard.assert_drill_allowed(self, arena, target)
+        arena.bind_target(target)
         return DrillContext(snapshot_id=arena.snapshot(), risk_hypothesis_id="RH-ORACLE-001", hidden_ground_truth={"expected_action": "pause"})
 
     async def arm(self, arena, context: DrillContext) -> list[LocalTxIntent]:

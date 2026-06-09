@@ -12,6 +12,7 @@ class MockArena(BaseArena):
     rpc_url = "mock://localhost"
     chain_id = 31337
     is_local = True
+    adapter_ready = True
 
     def __init__(self) -> None:
         super().__init__()
@@ -35,8 +36,7 @@ class MockArena(BaseArena):
         self.state = deepcopy(state)
 
     def execute_local_tx(self, tx: LocalTxIntent) -> dict[str, Any]:
-        self.safety_guard.assert_local_rpc(self.rpc_url)
-        self.safety_guard.assert_local_chain(self.chain_id)
+        self.assert_executable_tx(tx)
         before = self.get_state()
         if tx.function_category == "defense_pause":
             self.state["paused"] = True

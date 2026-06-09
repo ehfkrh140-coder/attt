@@ -10,6 +10,7 @@ from eval.state_diff import diff_states
 class EvaluationHarness:
     async def run(self, target, recon_report, arena, drill) -> EvaluationResult:
         await drill.precheck(arena, target)
+        arena.bind_target(target)
         pre = arena.get_state()
         context = await drill.prepare(arena, target)
         trace = await drill.trigger(arena, context)
