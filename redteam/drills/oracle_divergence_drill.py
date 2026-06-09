@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from core.invariants import InvariantSpec, check_invariant
-from redteam.executable_drill import BlindObservableBundle, DrillContext, DrillPrecheck, DrillTrace
+from redteam.executable_drill import BlindObservableBundle, DrillContext, DrillPrecheck, DrillTrace, blind_feature_from_intent
 from redteam.impact_assertion import ImpactAssertion
 from redteam.local_tx_intent import LocalTxIntent
 
@@ -39,8 +39,8 @@ class ExecutableOracleDivergenceDrill:
     async def collect_blue_observables(self, trace: DrillTrace) -> BlindObservableBundle:
         bundle = BlindObservableBundle(
             drill_id=trace.drill_id,
-            pending_features=[tx.public_report_dict() for tx in trace.tx_intents],
-            state_window={"recent_categories": [tx.function_category for tx in trace.tx_intents]},
+            pending_features=[blind_feature_from_intent(tx) for tx in trace.tx_intents],
+            state_window={"pending_count": len(trace.tx_intents), "visibility_mode": "public_local_mempool"},
         )
         bundle.assert_no_ground_truth()
         return bundle

@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from arenas.mock_arena import MockArena
+from redteam.executable_drill import blind_feature_from_intent
 from redteam.local_tx_intent import LocalTxIntent
 
 
@@ -13,18 +14,7 @@ class LocalMempoolArena(MockArena):
     def visible_pending_features(self) -> list[dict[str, object]]:
         if self.private_orderflow:
             return []
-        return [
-            {
-                "target": tx.target,
-                "function_category": tx.function_category,
-                "calldata_label": tx.calldata_label,
-                "value": tx.value,
-                "sender_role": tx.sender_role,
-                "gas_strategy": tx.gas_strategy,
-                "safety_scope": tx.safety_scope,
-            }
-            for tx in self.pending_txs
-        ]
+        return [blind_feature_from_intent(tx).to_dict() for tx in self.pending_txs]
 
     def submit_local_intents(self, intents: list[LocalTxIntent]) -> None:
         for intent in intents:
