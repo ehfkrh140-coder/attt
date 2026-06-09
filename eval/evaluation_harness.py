@@ -4,7 +4,16 @@ from arenas.base_arena import OrderingMode, SUPPORTED_ORDERING_MODES
 from blue.defender_engine import DefenderEngine
 from eval.invariant_checker import check_all
 from eval.label_leakage_checker import has_label_leakage
-from eval.scoring import EvaluationResult, MultiModeEvaluationResult
+from eval.scoring import (
+    EvaluationResult,
+    MultiModeEvaluationResult,
+    aggregate_multimode_blue_score,
+    default_safety_score,
+    score_blue_outcome,
+    score_evaluation_quality,
+    score_recon_report,
+    score_red_drills,
+)
 from eval.state_diff import diff_states
 from redteam.executable_drill import BlindObservableBundle
 
@@ -52,14 +61,36 @@ class EvaluationHarness:
         red_impact = 1 if (impact.impact_success or (damage_recorded and not impact.blocked_by_blue)) else 0
         action_correct = 1.0 if blue_action.intent is not None or blue_action.action_type in {"alert_only", "governance_review", "admin_review"} else 0.0
         blue_score = self._score_single_mode(ordering_mode, blocked, red_impact, action_correct, has_label_leakage(observables))
+        recon_scorecard = score_recon_report(recon_report)
+        red_scorecard = score_red_drills([type(drill).__name__], blind_compliant=not has_label_leakage(observables), impacts_invariants=True)
+        safety_scorecard = default_safety_score()
+        evaluation_quality_scorecard = score_evaluation_quality(
+            state_diff_used=bool(state_diff),
+            invariants_used=bool(getattr(recon_report, "invariants", [])),
+            multi_mode_ordering_used=False,
+            damage_recording_honest=(ordering_mode != "red_first" or red_impact == 1 or blocked == 1),
+            defense_first_not_overweighted=(blue_score < 1.0),
+            label_leakage_checked=True,
+        )
+        blue_scorecard = score_blue_outcome(
+            true_positives=1 if blocked and not red_impact else 0,
+            false_positives=1 if blue_action.action_type.startswith("pause") and not blocked and not red_impact else 0,
+            false_negatives=1 if red_impact and not blocked else 0,
+            true_negatives=1 if blue_action.action_type in {"monitor", "alert_only"} and not red_impact else 0,
+            action_correctness=action_correct,
+            ordering_robustness=1.0 if blocked else 0.0,
+            impact_reduction=0.0 if red_impact else 1.0,
+            no_label_robustness=0.0 if has_label_leakage(observables) else 1.0,
+            private_orderflow_handling=1.0 if ordering_mode == "private_orderflow" and blue_action.action_type in {"monitor", "alert_only"} else 0.0,
+        )
         return EvaluationResult(
             run_id=f"mock-run-{ordering_mode}",
             target_protocol=target.protocol_name,
             fork_block=target.fork_block,
-            recon_score=1.0 if recon_report.risk_hypotheses else 0.0,
+            recon_score=recon_scorecard.overall,
             red_score=1.0 if trace.tx_intents else 0.0,
             blue_score=blue_score,
-            safety_score=1.0,
+            safety_score=safety_scorecard.overall,
             executable_drill_count=1,
             unsupported_drill_count=0,
             red_impact_successes=red_impact,
@@ -80,6 +111,12 @@ class EvaluationHarness:
             ],
             ordering_mode=ordering_mode,
             execution_order=[receipt["tx"] for receipt in receipts],
+            blue_action=blue_action.action_type,
+            recon_scorecard=recon_scorecard,
+            red_scorecard=red_scorecard,
+            blue_scorecard=blue_scorecard,
+            safety_scorecard=safety_scorecard,
+            evaluation_quality_scorecard=evaluation_quality_scorecard,
         )
 
 
@@ -105,6 +142,15 @@ class EvaluationHarness:
             results[mode] = await self.run(target, recon_report, arena_factory(), drill_factory(), ordering_mode=mode, seed=seed)
         modes_passed = [mode for mode, result in results.items() if result.blue_blocks or (mode == "red_first" and result.red_impact_successes)]
         modes_failed = [mode for mode in selected_modes if mode not in modes_passed]
+        aggregate_blue = aggregate_multimode_blue_score(results)
+        aggregate_eval_quality = score_evaluation_quality(
+            state_diff_used=all(any("state_diff=" in note for note in result.notes) for result in results.values()),
+            invariants_used=all(bool(getattr(recon_report, "invariants", [])) for _ in results.values()),
+            multi_mode_ordering_used=len(selected_modes) > 1,
+            damage_recording_honest=all((mode != "red_first" or result.red_impact_successes or result.blue_blocks) for mode, result in results.items()),
+            defense_first_not_overweighted=results.get("defense_first").blue_score < 1.0 if "defense_first" in results else True,
+            label_leakage_checked=all(not result.label_leakage_detected for result in results.values()),
+        )
         return MultiModeEvaluationResult(
             run_id="mock-multimode-run",
             target_protocol=target.protocol_name,
@@ -116,6 +162,12 @@ class EvaluationHarness:
             ordering_robustness_score=round(sum(result.blue_score for result in results.values()), 4),
             modes_passed=modes_passed,
             modes_failed=modes_failed,
+            per_mode_blue_score={mode: result.blue_score for mode, result in results.items()},
+            per_mode_red_impact={mode: result.red_impact_successes for mode, result in results.items()},
+            per_mode_action_correctness={mode: result.action_correctness for mode, result in results.items()},
+            per_mode_safety_score={mode: result.safety_score for mode, result in results.items()},
+            aggregate_blue_score=aggregate_blue.overall,
+            aggregate_evaluation_quality_score=aggregate_eval_quality.overall,
         )
 
     def _score_single_mode(
@@ -132,7 +184,7 @@ class EvaluationHarness:
         if ordering_mode in {"defense_first", "gas_priority", "randomized_seeded"}:
             return weight if blocked else 0.0
         if ordering_mode == "red_first":
-            return weight if (blocked or red_impact) else 0.0
+            return weight if blocked else 0.0
         if ordering_mode == "private_orderflow":
             return weight if blocked else 0.0
         return 0.0
