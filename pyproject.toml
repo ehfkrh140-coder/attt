@@ -1,0 +1,16 @@
+[project]
+name = "defi-defense-sim-lab"
+version = "0.1.0"
+description = "Isolated DeFi defense validation lab with executable local red drills and blind blue defense."
+requires-python = ">=3.11"
+dependencies = ["pyyaml>=6.0"]
+
+[project.optional-dependencies]
+test = ["pytest>=8.0"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["."]
+
+[tool.ruff]
+line-length = 100
