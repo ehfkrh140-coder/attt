@@ -1,12 +1,61 @@
 from __future__ import annotations
 
-from redteam.drills.oracle_divergence_drill import ExecutableOracleDivergenceDrill
+from core.invariants import InvariantSpec, check_invariant
+from redteam.executable_drill import BlindObservableBundle, DrillContext, DrillPrecheck, DrillTrace, blind_feature_from_intent
+from redteam.impact_assertion import ImpactAssertion
 from redteam.local_tx_intent import LocalTxIntent
 
 
-class ExecutableVaultAccountingDrill(ExecutableOracleDivergenceDrill):
+class ExecutableVaultAccountingDrill:
     drill_id = "DRILL-VAULT-ACCOUNTING-001"
     risk_type = "vault_accounting"
+    target_protocol = "MockLendingVault"
+    required_runtime = "mock"
 
-    async def arm(self, arena, context):
-        return [LocalTxIntent("mock://vault", "vault_accounting_pressure", "safe:vault-accounting-pressure", 0, "adversarial-researcher", "local-normal", "mock-only")]
+    async def precheck(self, arena, target) -> DrillPrecheck:
+        arena.safety_guard.assert_drill_allowed(self, arena, target)
+        arena.bind_target(target)
+        return DrillPrecheck(True)
+
+    async def prepare(self, arena, target) -> DrillContext:
+        arena.safety_guard.assert_drill_allowed(self, arena, target)
+        arena.bind_target(target)
+        return DrillContext(snapshot_id=arena.snapshot(), risk_hypothesis_id="RH-VAULT-001", hidden_ground_truth={"expected_action": "pause"})
+
+    async def arm(self, arena, context: DrillContext) -> list[LocalTxIntent]:
+        return [
+            LocalTxIntent("mock://pool", "benign_decoy", "safe:vault-background", 0, "user", "local-normal", "mock-only"),
+            LocalTxIntent("mock://vault", "vault_accounting_pressure", "safe:vault-accounting-boundary", 0, "adversarial-researcher", "local-priority", "mock-only"),
+            LocalTxIntent("mock://vault", "price_sensitive_withdrawal", "safe:vault-sensitive-redeem-path", 0, "adversarial-researcher", "local-priority", "mock-only"),
+        ]
+
+    async def trigger(self, arena, context: DrillContext) -> DrillTrace:
+        trace_events = []
+        for step_index, intent in enumerate(await self.arm(arena, context), start=1):
+            arena.submit_pending(intent)
+            trace_events.append({"event": "pending_intent", "step_index": step_index})
+        return DrillTrace(self.drill_id, list(arena.pending_txs), trace_events, context.hidden_ground_truth)
+
+    async def collect_blue_observables(self, trace: DrillTrace) -> BlindObservableBundle:
+        bundle = BlindObservableBundle(
+            drill_id=trace.drill_id,
+            pending_features=[blind_feature_from_intent(tx) for tx in trace.tx_intents],
+            state_window={"pending_count": len(trace.tx_intents), "visibility_mode": "public_local_mempool", "window_shape": "accounting_then_sensitive_path"},
+        )
+        bundle.assert_no_ground_truth()
+        return bundle
+
+    async def assert_impact(self, arena, trace: DrillTrace) -> ImpactAssertion:
+        state = arena.get_state()
+        spec = InvariantSpec("INV-VAULT-001", "mock://vault", self.risk_type, "vault accounting consistency", [], "vault_accounting_consistent", "liabilities exceed assets", "high")
+        invariant_ok = check_invariant(spec, state)
+        return ImpactAssertion(
+            invariant_id=spec.invariant_id,
+            impact_success=not invariant_ok,
+            blocked_by_blue=bool(state.get("paused")) and state.get("blocked_sensitive_actions", 0) > 0,
+            state_diff={},
+            notes=["Vault impact is determined by assets/liabilities invariant."],
+        )
+
+    async def cleanup(self, arena, context: DrillContext) -> None:
+        arena.revert(context.snapshot_id)
