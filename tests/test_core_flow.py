@@ -132,6 +132,8 @@ def test_full_executable_recon_red_blue():
         recon = ReconEngine().run(target)
         assert len(recon.risk_hypotheses) >= 2
         result = await EvaluationHarness().run(target, recon, LocalMempoolArena(), ExecutableOracleDivergenceDrill())
-        assert result.recon_score == result.red_score == result.blue_score == result.safety_score == 1.0
+        assert result.recon_score == result.red_score == result.safety_score == 1.0
+        assert result.blue_score < 1.0
+        assert result.ordering_mode == "defense_first"
         assert "raw_calldata" not in write_safe_report(result)
     asyncio.run(scenario())
