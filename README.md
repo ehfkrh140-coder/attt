@@ -63,3 +63,24 @@ After pushing a branch or opening a pull request, check the **Actions** tab for 
 
 - Beginner runbook: `docs/BEGINNER_RUNBOOK.md`
 - Capability status: `docs/CAPABILITY_STATUS.md`
+
+## Protocol Twin and External World Twin
+
+An EVM Fork Twin copies on-chain protocol state into a local fork for EVM targets such as Aave V3. That local fork is only one part of realistic testing: it does not automatically reproduce live mempool activity, keeper timing, future oracle updates, offchain APIs, bridge remote-chain state, frontend behavior, liquidation or arb bot timing, or congestion.
+
+The External World Twin fills those gaps with local-only emulation. It can model local orderflow, private-orderflow visibility gaps, delayed keepers, stale oracle windows, liquidity shocks, bridge message stubs, offchain-data stubs, user-intent bursts, gas priority pressure, block delay, and timestamp jumps.
+
+The Twin Fidelity Score reports what was copied, what was emulated, what was missing, and how much confidence to place in the result. Missing components are reported honestly instead of hidden.
+
+Aave V3 follows the EVM Fork Twin target path. Haedal/Sui remains gated until a real Sui state twin adapter exists. MockArena remains the regression and learning mode. Users do not manually design Red scenarios: Recon and the auto runner select drills from target and environment conditions.
+
+## Protocol Twin CLI examples
+
+```bash
+python scripts/run_protocol_twin.py --protocol mock_lending
+python scripts/run_protocol_twin.py --protocol aave_v3 --network ethereum --fork-block latest
+python scripts/create_protocol_twin.py --protocol aave_v3 --network ethereum --root-address <root-address> --fork-block latest
+python scripts/run_protocol_twin.py --protocol haedal
+```
+
+`mock_lending` runs the full MockArena simulation. `aave_v3` follows the EVM Fork Twin path and reports missing root or gated execution status when needed. `haedal` reports unsupported Sui adapter status until a real Sui state twin adapter exists.

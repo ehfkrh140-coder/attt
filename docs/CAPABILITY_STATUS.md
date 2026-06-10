@@ -13,3 +13,8 @@
 | Real private keys | Not supported | Intentionally forbidden by the safety boundary |
 | Real Aave adapter | Not implemented | Future work only; not part of the MockArena MVP |
 | Real Haedal adapter | Not implemented | Future work only; not part of the MockArena MVP |
+| Protocol Twin onboarding | Partial | MockArena works; EVM Fork Twin is read-only/gated until adapter readiness |
+| External World Twin | Supported locally | Emulates orderflow, keepers, oracle timing, liquidity, bridge stubs, offchain stubs, user intents, and network conditions |
+| Twin Fidelity Score | Supported | Reports copied/emulated/missing coverage honestly |
+| Aave V3 path | Gated / read-only planning | Uses EVM Fork Twin path and never silently falls back to mock |
+| Haedal path | Gated / Not implemented | Sui state twin adapter is not implemented |
