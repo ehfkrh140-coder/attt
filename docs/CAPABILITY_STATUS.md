@@ -68,3 +68,46 @@ The default reserve limit is 8. A user may request a different limit, but the re
 - Target manifest review: parses generated manifests and checks read-only flags, but does not confirm scope automatically.
 - Dependency graph review: generated from Recon output and reserve metadata; it is a review candidate, not execution permission.
 - Phase 2B execution: still blocked and disabled. No transactions are sent and no Aave Red drills run.
+
+## Phase 2A.5-R Recon / Red / Blue Extreme Capability Reframe
+
+The capability model now uses this permanent rule:
+
+> External public-world behavior is forbidden. Internal sealed-lab equivalents must be modeled with maximum realism.
+
+> 외부 세계에서는 금지한다. 내부 실험실에서는 현실과 똑같이, 오히려 더 극한적으로 구현한다.
+
+> Red가 최강이려면 Recon은 더 최강이어야 한다.
+
+> For Red to be world-class, Recon must be stronger than Red.
+
+Forbidden public-world capabilities are not described as missing features. They are **forbidden outside** and **modeled inside** through sealed-lab equivalents.
+
+### Permanent forbidden capabilities
+
+- public network active probing
+- public network transaction broadcast
+- public RPC through Red/Blue execution
+- live victim targeting
+- public mempool observation for attack discovery
+- real private key usage
+- real fund movement
+- out-of-scope contract/program exploration
+- replayable exploit package generation
+- raw reusable calldata / transaction bundle output
+- public-network portable exploit artifacts
+
+### Current Phase 2A limitations
+
+- EVM fork and Aave V3 support remain read-only discovery, planning, evidence, and preflight review.
+- Red can execute MockArena drills, but executable EVM fork Red drills remain disabled.
+- Blue can defend in local arenas and consume blind observables, but does not operate as a public-network bot.
+- Phase 2B execution remains blocked; `EvmForkExecutionArena.execute_local_intent()` still raises `UNSUPPORTED_EXECUTABLE_FORK_DRILLS`.
+
+### Future sealed-local capabilities after explicit gates
+
+- Recon: snapshot/revert-controlled local active probing, local-only transaction simulation, synthetic account/mint construction, dependency failure construction, adversarial external-world pressure discovery.
+- Red: sealed local fork transaction execution, local-only signer use, local-only impersonation, synthetic attacker mints/accounts, manifest-scoped retired/stale target interaction, local-only multi-pool campaigns, adversarial ordering, private-orderflow simulation.
+- Blue: local-only pause, quarantine, circuit breaker, dependency isolation, emergency governance simulation, risk parameter adjustment, vault outflow guard, canonical identity enforcement, and incident evidence generation.
+
+These future capabilities are policy and design targets only until a separate Phase 2B PR explicitly opens the sealed execution harness.

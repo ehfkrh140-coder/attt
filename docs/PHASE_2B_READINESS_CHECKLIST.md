@@ -50,3 +50,25 @@ If any item is incomplete, stay in read-only Phase 2A.
 - [ ] Preflight output reviewed as review-ready only, not execution-enabled.
 - [ ] Fork execution mode remains disabled.
 - [ ] EvmForkExecutionArena still raises unsupported for local execution.
+
+## Phase 2A.5-R reframe gates before Phase 2B
+
+Phase 2A.5-R does not open Phase 2B. It adds role definitions, policy models, and tests so that a future Phase 2B can be extreme, realistic, and sealed.
+
+- [ ] `docs/SAFETY_BOUNDARY_MODEL.md` has been reviewed.
+- [ ] `ForbiddenOutsideModeledInsideMatrix` has been reviewed and every forbidden external capability has a sealed-lab modeled equivalent.
+- [ ] Recon is accepted as a first-class adversarial discovery engine, not a report generator.
+- [ ] Red is accepted as a sealed-lab adversarial executor, not a story generator.
+- [ ] Blue is accepted as a blind but powerful sealed-lab defender.
+- [ ] `docs/NO_FAKE_SCENARIO_STANDARD.md` has been reviewed.
+- [ ] Narrative-only Recon findings are rejected.
+- [ ] Narrative-only Red drills are rejected.
+- [ ] Alert-only Blue responses are rejected when block/quarantine is required.
+- [ ] Evaluator verdicts require state-diff or invariant-diff evidence.
+- [ ] UI-hidden status alone is rejected as a security boundary.
+- [ ] Canonical asset identity failures are represented as invariant failures.
+- [ ] Multi-pool same-pattern findings are represented as campaign risk.
+- [ ] No live exploit code, public-network procedure, raw calldata, transaction bundle, or real-key support has been introduced.
+- [ ] `EvmForkExecutionArena.execute_local_intent()` still raises `UNSUPPORTED_EXECUTABLE_FORK_DRILLS`.
+
+If any item is incomplete, stay in Phase 2A review/design mode.
