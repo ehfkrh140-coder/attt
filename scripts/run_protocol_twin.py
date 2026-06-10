@@ -21,6 +21,7 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument("--local-rpc-url", default="http://127.0.0.1:8545")
     parser.add_argument("--target")
     parser.add_argument("--fixture-readonly", action="store_true", help=argparse.SUPPRESS)
+    parser.add_argument("--max-reserves", type=int, default=8)
     return parser
 
 
@@ -59,6 +60,7 @@ def main() -> None:
                 root_address=args.root_address,
                 local_rpc_url=args.local_rpc_url,
                 fixture_readonly=args.fixture_readonly,
+                max_reserves=args.max_reserves,
             )
         )
     print(write_protocol_twin_summary(result))

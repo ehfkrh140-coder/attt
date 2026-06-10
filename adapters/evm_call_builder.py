@@ -23,6 +23,11 @@ class EvmCallBuilder:
         "aave_provider_get_acl_manager": "0x997a1378",
         "aave_pool_get_reserves_list": "0xd1946dbc",
         "aave_pool_get_reserve_data": "0x35ea6a75",
+        "aave_pool_get_configuration": "0xc44b11f7",
+        "aave_oracle_get_asset_price": "0xb3596f07",
+        "aave_oracle_get_source_of_asset": "0x0fcfa7c4",
+        "aave_acl_get_pool_admin_role": "0x9ccab398",
+        "aave_acl_get_risk_admin_role": "0x8aa10435",
     }
 
     @classmethod
@@ -30,6 +35,10 @@ class EvmCallBuilder:
         if safe_label not in cls._CALLS:
             raise ValueError(f"Unsupported safe EVM read label: {safe_label}")
         return EvmCall(safe_label=safe_label, selector=cls._CALLS[safe_label], encoded_args=tuple(encoded_args), lookup_args=tuple(lookup_args))
+
+    @classmethod
+    def safe_labels(cls) -> tuple[str, ...]:
+        return tuple(cls._CALLS)
 
     @classmethod
     def encode_address_arg(cls, address: str) -> str:
@@ -60,3 +69,23 @@ class EvmCallBuilder:
     @classmethod
     def aave_pool_get_reserve_data(cls, reserve_asset: str) -> EvmCall:
         return cls.build("aave_pool_get_reserve_data", cls.encode_address_arg(reserve_asset), lookup_args=(reserve_asset,))
+
+    @classmethod
+    def aave_pool_get_configuration(cls, reserve_asset: str) -> EvmCall:
+        return cls.build("aave_pool_get_configuration", cls.encode_address_arg(reserve_asset), lookup_args=(reserve_asset,))
+
+    @classmethod
+    def aave_oracle_get_asset_price(cls, reserve_asset: str) -> EvmCall:
+        return cls.build("aave_oracle_get_asset_price", cls.encode_address_arg(reserve_asset), lookup_args=(reserve_asset,))
+
+    @classmethod
+    def aave_oracle_get_source_of_asset(cls, reserve_asset: str) -> EvmCall:
+        return cls.build("aave_oracle_get_source_of_asset", cls.encode_address_arg(reserve_asset), lookup_args=(reserve_asset,))
+
+    @classmethod
+    def aave_acl_get_pool_admin_role(cls) -> EvmCall:
+        return cls.build("aave_acl_get_pool_admin_role")
+
+    @classmethod
+    def aave_acl_get_risk_admin_role(cls) -> EvmCall:
+        return cls.build("aave_acl_get_risk_admin_role")

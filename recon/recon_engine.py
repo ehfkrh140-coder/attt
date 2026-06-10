@@ -21,6 +21,7 @@ CATEGORY_KEYWORDS = {
     "a_token": ("a_token", "atoken"),
     "stable_debt_token": ("stable_debt",),
     "variable_debt_token": ("variable_debt",),
+    "reserve_oracle_source": ("oracle_source", "source"),
     "lst": ("lst", "staking", "staked"),
     "keeper": ("keeper", "rebalance", "automation"),
 }
@@ -113,6 +114,8 @@ class ReconEngine:
         circuit_breakers = self._by_category(contracts, "circuit_breaker")
         reserve_assets = self._by_category(contracts, "reserve_asset")
         debt_tokens = self._by_category(contracts, "stable_debt_token", "variable_debt_token")
+        metadata = dict(target.protocol_metadata.get("aave_v3", {}))
+        watch_items = list(metadata.get("watch_items", []))
         return {
             "protocol_name": target.protocol_name,
             "runtime": target.runtime,
@@ -126,6 +129,7 @@ class ReconEngine:
             "reserve_assets": reserve_assets,
             "debt_tokens": debt_tokens,
             "circuit_breakers": circuit_breakers,
+            "watch_items": watch_items,
             "external_dependencies": {
                 "oracle_sources": list(target.oracle_sources),
                 "dex_dependencies": list(target.dex_dependencies),
@@ -194,6 +198,7 @@ class ReconEngine:
         dex_pools = self._by_category(contracts, "dex_pool")
         reserve_assets = self._by_category(contracts, "reserve_asset")
         debt_tokens = self._by_category(contracts, "stable_debt_token", "variable_debt_token")
+        reserve_oracle_sources = self._by_category(contracts, "reserve_oracle_source")
         governance = self._by_category(contracts, "governance")
         admin_configs = self._by_category(contracts, "admin_config")
         circuit_breakers = self._by_category(contracts, "circuit_breaker")
@@ -223,6 +228,12 @@ class ReconEngine:
             for reserve in reserve_assets
             if reserve["address"] in debt.get("dependencies", [])
         ]
+        reserve_oracle_paths = [
+            {"from": source["address"], "to": reserve["address"], "label": f"{source['name']} -> {reserve['name']} reserve oracle path"}
+            for source in reserve_oracle_sources
+            for reserve in reserve_assets
+            if reserve["address"] in source.get("dependencies", [])
+        ]
         governance_paths = [
             {"from": gov["address"], "to": admin["address"], "label": f"{gov['name']} -> {admin['name']} admin config path"}
             for gov in governance
@@ -237,7 +248,7 @@ class ReconEngine:
             for breaker in circuit_breakers
             for vault in vaults
         ]
-        critical_paths = oracle_paths + liquidity_paths + reserve_paths + debt_paths + governance_paths + circuit_breaker_paths
+        critical_paths = oracle_paths + liquidity_paths + reserve_paths + debt_paths + reserve_oracle_paths + governance_paths + circuit_breaker_paths
         if oracle_paths and liquidity_paths and vault_paths:
             critical_paths.append({"from": "composed_dependencies", "to": vaults[0]["address"], "label": "oracle + liquidity + vault composed risk path"})
         return {
@@ -251,10 +262,12 @@ class ReconEngine:
             "vault_paths": vault_paths,
             "reserve_paths": reserve_paths,
             "debt_paths": debt_paths,
+            "reserve_oracle_paths": reserve_oracle_paths,
             "reserve_assets": [contract["name"] for contract in reserve_assets],
             "governance_paths": governance_paths,
             "admin_paths": admin_paths,
             "circuit_breaker_paths": circuit_breaker_paths,
             "critical_paths": critical_paths,
+            "watch_items": list(target.protocol_metadata.get("aave_v3", {}).get("watch_items", [])),
             "contract_edges": contract_graph["edges"],
         }

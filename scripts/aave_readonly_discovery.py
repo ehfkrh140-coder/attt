@@ -15,6 +15,7 @@ from core.errors import SafetyGuardError
 from core.safety import BLOCKED_BY_SAFETY_GUARD, SafetyGuard
 from recon.recon_engine import ReconEngine
 from targets.protocol_catalog import MISSING_PROTOCOL_ROOT_ADDRESS
+from targets.aave_v3_readonly import AAVE_MAX_RESERVES_DEFAULT
 from targets.protocol_resolvers.aave_v3 import AaveV3Resolver
 from targets.protocol_resolvers.base import ProtocolResolutionRequest
 from targets.target_schema import TargetProtocolSpec
@@ -29,6 +30,7 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument("--fork-block", default=None)
     parser.add_argument("--local-rpc-url", default="http://127.0.0.1:8545")
     parser.add_argument("--export-target")
+    parser.add_argument("--max-reserves", type=int, default=AAVE_MAX_RESERVES_DEFAULT)
     parser.add_argument("--fixture-readonly", action="store_true", help=argparse.SUPPRESS)
     return parser
 
@@ -42,6 +44,14 @@ def _fixture_client(root_address: str) -> EvmReadonlyClient:
             (root_address.lower(), "aave_provider_get_price_oracle"): "aave://price-oracle",
             (root_address.lower(), "aave_provider_get_acl_manager"): "aave://acl-manager",
             ("aave://pool", "aave_pool_get_reserves_list"): ["aave://usdc", "aave://weth"],
+            ("aave://acl-manager", "aave_acl_get_pool_admin_role"): "pool-admin-role",
+            ("aave://acl-manager", "aave_acl_get_risk_admin_role"): "risk-admin-role",
+            ("aave://pool", "aave_pool_get_configuration", "aave://usdc"): {"decimals": 6, "ltv_bps": 8000, "liquidation_threshold_bps": 8500, "borrowing_enabled": True, "stable_borrow_enabled": False, "active": True, "frozen": False},
+            ("aave://price-oracle", "aave_oracle_get_asset_price", "aave://usdc"): 100000000,
+            ("aave://price-oracle", "aave_oracle_get_source_of_asset", "aave://usdc"): "aave://usdc-price-source",
+            ("aave://pool", "aave_pool_get_configuration", "aave://weth"): {"decimals": 18, "ltv_bps": 8250, "liquidation_threshold_bps": 8600, "borrowing_enabled": True, "stable_borrow_enabled": False, "active": True, "frozen": False},
+            ("aave://price-oracle", "aave_oracle_get_asset_price", "aave://weth"): 250000000000,
+            ("aave://price-oracle", "aave_oracle_get_source_of_asset", "aave://weth"): "aave://weth-price-source",
             ("aave://pool", "aave_pool_get_reserve_data", "aave://usdc"): {
                 "asset": "aave://usdc",
                 "symbol": "USDC",
@@ -92,6 +102,7 @@ def _target_manifest(target: TargetProtocolSpec) -> dict[str, object]:
         "governance_contracts": target.governance_contracts,
         "admin_roles": target.admin_roles,
         "protocol_metadata": target.protocol_metadata,
+        "read_only_only": True,
         "authorized_scope": False,
         "scope_confirmed": False,
         "executable_drills_allowed": False,
@@ -129,6 +140,7 @@ def run_discovery(
     export_target: str | None = None,
     fixture_readonly: bool = False,
     transport_factory: TransportFactory = EvmJsonRpcTransport,
+    max_reserves: int = AAVE_MAX_RESERVES_DEFAULT,
 ) -> str:
     lines = ["Aave V3 Read-only Discovery Smoke", "- Protocol: aave_v3", "- Protocol Twin mode: evm_fork_twin"]
     if not root_address:
@@ -184,7 +196,7 @@ def run_discovery(
         SafetyGuard().assert_safe_report(output)
         return output
 
-    resolution = AaveV3Resolver().resolve(
+    resolution = AaveV3Resolver(max_reserves=max_reserves).resolve(
         ProtocolResolutionRequest(
             protocol="aave_v3",
             network=network,
@@ -202,7 +214,14 @@ def run_discovery(
     reserves = metadata.get("reserves", []) if isinstance(metadata, dict) else []
     reserve_symbols = [str(reserve.get("symbol", "unknown")) for reserve in reserves if isinstance(reserve, dict)]
     reserve_status = str(metadata.get("reserve_discovery_status", "unavailable")) if isinstance(metadata, dict) else "unavailable"
-    drills = [hypothesis.recommended_drill for hypothesis in recon.risk_hypotheses]
+    max_requested = metadata.get("max_reserves_requested", "unknown") if isinstance(metadata, dict) else "unknown"
+    max_processed = metadata.get("max_reserves_processed", "unknown") if isinstance(metadata, dict) else "unknown"
+    truncated = metadata.get("truncated", False) if isinstance(metadata, dict) else False
+    unresolved_fields = metadata.get("unresolved_reserve_fields", []) if isinstance(metadata, dict) else []
+    watch_items = metadata.get("watch_items", []) if isinstance(metadata, dict) else []
+    oracle_source_status = "available" if any(isinstance(reserve, dict) and reserve.get("oracle_source_status") == "available" for reserve in reserves) else "unavailable"
+    configuration_status = "available" if any(isinstance(reserve, dict) and reserve.get("decimals") is not None for reserve in reserves) else "unavailable"
+    drills = list(dict.fromkeys(hypothesis.recommended_drill for hypothesis in recon.risk_hypotheses))
     exported = "no"
     if export_target:
         exported = _export_target(export_target, resolution.target)
@@ -218,6 +237,13 @@ def run_discovery(
             f"- Unresolved calls: {', '.join(unresolved) if unresolved else 'none'}",
             f"- Reserve discovery: {reserve_status}",
             f"- Reserve count: {len(reserves)}",
+            f"- Max reserves requested: {max_requested}",
+            f"- Max reserves processed: {max_processed}",
+            f"- Truncated: {'yes' if truncated else 'no'}",
+            f"- Unresolved reserve fields count: {len(unresolved_fields)}",
+            f"- Watch items count: {len(watch_items)}",
+            f"- Oracle source status: {oracle_source_status}",
+            f"- Configuration status: {configuration_status}",
             f"- Reserve symbols: {', '.join(reserve_symbols) if reserve_symbols else 'none'}",
             f"- Selected drill recommendations: {', '.join(drills) if drills else 'none'}",
             f"- Recon risk hypotheses count: {len(recon.risk_hypotheses)}",
@@ -241,6 +267,7 @@ def main() -> int:
             local_rpc_url=args.local_rpc_url,
             export_target=args.export_target,
             fixture_readonly=args.fixture_readonly,
+            max_reserves=args.max_reserves,
         )
     )
     return 0

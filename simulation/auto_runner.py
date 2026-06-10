@@ -14,6 +14,7 @@ from redteam.drill_planner import plan_drills
 from core.errors import SafetyGuardError
 from core.safety import BLOCKED_BY_SAFETY_GUARD
 from targets.protocol_catalog import MISSING_PROTOCOL_ROOT_ADDRESS, ProtocolCatalog, UNSUPPORTED_PROTOCOL_TWIN
+from targets.aave_v3_readonly import AAVE_MAX_RESERVES_DEFAULT
 from targets.protocol_resolvers.aave_v3 import AaveV3Resolver
 from targets.protocol_resolvers.base import ProtocolResolutionRequest, ProtocolResolutionResult
 from targets.protocol_resolvers.sui_gated import SuiGatedResolver
@@ -30,6 +31,7 @@ class AutoSimulationRequest:
     explicit_mock: bool = False
     target: TargetProtocolSpec | None = None
     fixture_readonly: bool = False
+    max_reserves: int = AAVE_MAX_RESERVES_DEFAULT
 
 
 @dataclass(frozen=True)
@@ -129,7 +131,7 @@ class AutoSimulationRunner:
         )
 
     def _run_aave_readonly_or_gated(self, request: AutoSimulationRequest, twin_mode: str, runtime: str) -> AutoSimulationResult:
-        resolver = AaveV3Resolver(self.catalog)
+        resolver = AaveV3Resolver(self.catalog, max_reserves=request.max_reserves)
         readonly_client = None
         if request.root_address and request.fixture_readonly:
             readonly_client = EvmReadonlyClient(
@@ -141,6 +143,14 @@ class AutoSimulationRunner:
                     (request.root_address.lower(), "aave_provider_get_price_oracle"): "aave://price-oracle",
                     (request.root_address.lower(), "aave_provider_get_acl_manager"): "aave://acl-manager",
                     ("aave://pool", "aave_pool_get_reserves_list"): ["aave://usdc", "aave://weth"],
+                    ("aave://acl-manager", "aave_acl_get_pool_admin_role"): "pool-admin-role",
+                    ("aave://acl-manager", "aave_acl_get_risk_admin_role"): "risk-admin-role",
+                    ("aave://pool", "aave_pool_get_configuration", "aave://usdc"): {"decimals": 6, "ltv_bps": 8000, "liquidation_threshold_bps": 8500, "borrowing_enabled": True, "stable_borrow_enabled": False, "active": True, "frozen": False},
+                    ("aave://price-oracle", "aave_oracle_get_asset_price", "aave://usdc"): 100000000,
+                    ("aave://price-oracle", "aave_oracle_get_source_of_asset", "aave://usdc"): "aave://usdc-price-source",
+                    ("aave://pool", "aave_pool_get_configuration", "aave://weth"): {"decimals": 18, "ltv_bps": 8250, "liquidation_threshold_bps": 8600, "borrowing_enabled": True, "stable_borrow_enabled": False, "active": True, "frozen": False},
+                    ("aave://price-oracle", "aave_oracle_get_asset_price", "aave://weth"): 250000000000,
+                    ("aave://price-oracle", "aave_oracle_get_source_of_asset", "aave://weth"): "aave://weth-price-source",
                     ("aave://pool", "aave_pool_get_reserve_data", "aave://usdc"): {"symbol": "USDC", "a_token": "aave://ausdc", "variable_debt_token": "aave://variable-debt-usdc", "decimals": 6, "ltv_bps": 8000, "liquidation_threshold_bps": 8500, "borrowing_enabled": True, "active": True, "frozen": False},
                     ("aave://pool", "aave_pool_get_reserve_data", "aave://weth"): {"symbol": "WETH", "a_token": "aave://aweth", "variable_debt_token": "aave://variable-debt-weth", "decimals": 18, "ltv_bps": 8250, "liquidation_threshold_bps": 8600, "borrowing_enabled": True, "active": True, "frozen": False},
                 },
@@ -189,7 +199,7 @@ class AutoSimulationRunner:
             )
         assert resolution.target is not None
         recon = ReconEngine().run(resolution.target)
-        selected = [hypothesis.recommended_drill for hypothesis in recon.risk_hypotheses]
+        selected = list(dict.fromkeys(hypothesis.recommended_drill for hypothesis in recon.risk_hypotheses))
         unsupported = ["executable_evm_adapter"]
         fidelity = score_twin_fidelity(twin_mode, environment, unsupported)
         scorecard = ScoreCard(

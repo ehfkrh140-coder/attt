@@ -212,6 +212,8 @@ def main() -> int:
         "Phase 2A.4 reserve metadata smoke",
         "Reserve discovery: fully_discovered" in phase2a2_aave_output
         and "Reserve count: 2" in phase2a2_aave_output
+        and "Max reserves requested: 8" in phase2a2_aave_output
+        and "Watch items count:" in phase2a2_aave_output
         and "Reserve symbols: USDC, WETH" in phase2a2_aave_output,
         results,
     )

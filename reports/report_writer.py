@@ -99,6 +99,11 @@ def write_protocol_twin_summary(result: Any) -> str:
                     f"- Discovered contracts: {', '.join(result.discovered_contracts) if result.discovered_contracts else 'partial'}",
                     f"- Reserve discovery: {getattr(result, 'reserve_discovery', 'unavailable')}",
                     f"- Discovered reserves: {', '.join(getattr(result, 'discovered_reserves', [])) if getattr(result, 'discovered_reserves', []) else 'none'}",
+                    f"- Max reserves requested: {getattr(result, 'resolution', None).target.protocol_metadata.get('aave_v3', {}).get('max_reserves_requested', 'unknown') if getattr(result, 'resolution', None) and getattr(result.resolution, 'target', None) else 'unknown'}",
+                    f"- Max reserves processed: {getattr(result, 'resolution', None).target.protocol_metadata.get('aave_v3', {}).get('max_reserves_processed', 'unknown') if getattr(result, 'resolution', None) and getattr(result.resolution, 'target', None) else 'unknown'}",
+                    f"- Truncated: {'yes' if (getattr(result, 'resolution', None).target.protocol_metadata.get('aave_v3', {}).get('truncated', False) if getattr(result, 'resolution', None) and getattr(result.resolution, 'target', None) else False) else 'no'}",
+                    f"- Unresolved reserve fields count: {len(getattr(result, 'resolution', None).target.protocol_metadata.get('aave_v3', {}).get('unresolved_reserve_fields', [])) if getattr(result, 'resolution', None) and getattr(result.resolution, 'target', None) else 0}",
+                    f"- Watch items count: {len(getattr(result, 'resolution', None).target.protocol_metadata.get('aave_v3', {}).get('watch_items', [])) if getattr(result, 'resolution', None) and getattr(result.resolution, 'target', None) else 0}",
                     f"- Selected drill recommendations: {', '.join(result.selected_drills) if result.selected_drills else 'none'}",
                     f"- Recon risk hypotheses count: {len(getattr(result.recon_report, 'risk_hypotheses', [])) if getattr(result, 'recon_report', None) else 0}",
                 ]

@@ -3,9 +3,34 @@ from __future__ import annotations
 from dataclasses import dataclass, field
 from typing import Any
 
+AAVE_MAX_RESERVES_DEFAULT = 8
+AAVE_MAX_RESERVES_HARD_CAP = 50
+
 
 @dataclass(frozen=True)
-class AaveReserveMetadata:
+class AaveV3CoreContracts:
+    pool_addresses_provider: str
+    pool: str | None = None
+    pool_configurator: str | None = None
+    price_oracle: str | None = None
+    acl_manager: str | None = None
+    pool_admin_role: str | None = None
+    risk_admin_role: str | None = None
+
+    def safe_dict(self) -> dict[str, Any]:
+        return {
+            "pool_addresses_provider": self.pool_addresses_provider,
+            "pool": self.pool,
+            "pool_configurator": self.pool_configurator,
+            "price_oracle": self.price_oracle,
+            "acl_manager": self.acl_manager,
+            "pool_admin_role": self.pool_admin_role,
+            "risk_admin_role": self.risk_admin_role,
+        }
+
+
+@dataclass(frozen=True)
+class AaveV3ReserveSnapshot:
     """Read-only reserve metadata discovered from an Aave V3 Pool."""
 
     asset: str
@@ -21,7 +46,11 @@ class AaveReserveMetadata:
     stable_borrow_enabled: bool | None = None
     active: bool | None = None
     frozen: bool | None = None
+    asset_price: int | None = None
+    oracle_source: str | None = None
     discovery_status: str = "partial"
+    unresolved_fields: list[str] = field(default_factory=list)
+    watch_items: list[str] = field(default_factory=list)
     notes: list[str] = field(default_factory=list)
 
     def safe_name(self, index: int) -> str:
@@ -42,6 +71,7 @@ class AaveReserveMetadata:
             ("a_token", self.a_token, "a_token"),
             ("stable_debt_token", self.stable_debt_token, "stable_debt_token"),
             ("variable_debt_token", self.variable_debt_token, "variable_debt_token"),
+            ("oracle_source", self.oracle_source, "reserve_oracle_source"),
         ]
         for label, address, category in token_fields:
             if address:
@@ -65,7 +95,11 @@ class AaveReserveMetadata:
             "stable_borrow_enabled": self.stable_borrow_enabled,
             "active": self.active,
             "frozen": self.frozen,
+            "asset_price_status": "available" if self.asset_price is not None else "unavailable",
+            "oracle_source_status": "available" if self.oracle_source else "unavailable",
             "discovery_status": self.discovery_status,
+            "unresolved_fields": list(self.unresolved_fields),
+            "watch_items": list(self.watch_items),
             "notes": list(self.notes),
         }
         if include_addresses:
@@ -76,23 +110,51 @@ class AaveReserveMetadata:
                     "stable_debt_token": self.stable_debt_token,
                     "variable_debt_token": self.variable_debt_token,
                     "interest_rate_strategy": self.interest_rate_strategy,
+                    "oracle_source": self.oracle_source,
                 }
             )
         return data
 
 
+class AaveReserveMetadata(AaveV3ReserveSnapshot):
+    """Backward-compatible name for reserve snapshots."""
+
+
 @dataclass(frozen=True)
-class AaveV3ReadOnlyMetadata:
-    reserves: list[AaveReserveMetadata] = field(default_factory=list)
+class AaveV3ReadOnlyDiscoveryReport:
+    core_contracts: AaveV3CoreContracts
+    reserves: list[AaveV3ReserveSnapshot] = field(default_factory=list)
     reserve_discovery_status: str = "unavailable"
-    reserve_cap: int = 20
-    notes: list[str] = field(default_factory=list)
+    max_reserves_requested: int = AAVE_MAX_RESERVES_DEFAULT
+    max_reserves_processed: int = AAVE_MAX_RESERVES_DEFAULT
+    hard_cap_applied: bool = False
+    truncated: bool = False
+    unresolved_calls: list[str] = field(default_factory=list)
+    unresolved_reserve_fields: list[str] = field(default_factory=list)
+    watch_items: list[str] = field(default_factory=list)
+    warnings: list[str] = field(default_factory=list)
+
+    @property
+    def reserve_cap(self) -> int:
+        return self.max_reserves_processed
 
     def safe_dict(self) -> dict[str, Any]:
         return {
+            "core_contracts": self.core_contracts.safe_dict(),
             "reserve_discovery_status": self.reserve_discovery_status,
             "reserve_count": len(self.reserves),
-            "reserve_cap": self.reserve_cap,
+            "max_reserves_requested": self.max_reserves_requested,
+            "max_reserves_processed": self.max_reserves_processed,
+            "reserve_cap": self.max_reserves_processed,
+            "hard_cap_applied": self.hard_cap_applied,
+            "truncated": self.truncated,
+            "unresolved_calls": list(self.unresolved_calls),
+            "unresolved_reserve_fields": list(self.unresolved_reserve_fields),
+            "watch_items": list(self.watch_items),
+            "warnings": list(self.warnings),
             "reserves": [reserve.safe_dict() for reserve in self.reserves],
-            "notes": list(self.notes),
         }
+
+
+class AaveV3ReadOnlyMetadata(AaveV3ReadOnlyDiscoveryReport):
+    """Backward-compatible metadata class name."""
