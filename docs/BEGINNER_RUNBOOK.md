@@ -133,3 +133,21 @@ python scripts/run_protocol_twin.py --protocol aave_v3 --network ethereum --root
 ```
 
 If no local fork is running, the command should print `LOCAL_FORK_UNAVAILABLE`. That is a safe failure. Phase 2A.1 does not send transactions, does not use private keys, does not execute Aave Red drills, and does not silently switch to MockArena.
+
+## Live local fork read-only smoke
+
+Use this section when you want to check a local Anvil or Hardhat-style fork that you started yourself. Start your local fork with your own local tooling and upstream provider outside this project. This project only connects to localhost.
+
+1. Check the local fork:
+
+```bash
+python scripts/check_local_evm_fork.py --local-rpc-url http://127.0.0.1:8545
+```
+
+2. If you have an Aave V3 PoolAddressesProvider/root address, run read-only discovery:
+
+```bash
+python scripts/aave_readonly_discovery.py --root-address <root-address> --local-rpc-url http://127.0.0.1:8545
+```
+
+If the fork is not running, `LOCAL_FORK_UNAVAILABLE` is safe and expected. The scripts do not send transactions, do not use signing keys, do not run executable Aave Red drills, and do not switch to MockArena as a fallback.

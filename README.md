@@ -129,3 +129,21 @@ Expected Phase 2A.1 behavior:
 - If a local fork is running, the resolver performs read-only calls only and builds a partial `TargetProtocolSpec` for Recon.
 - Executable EVM fork Red drills remain gated and do not run.
 - MockArena remains a separate learning/regression mode and is never used as a silent fallback for an Aave V3 request.
+
+## Phase 2A.2 live local fork read-only smoke
+
+Phase 2A.2 adds beginner-friendly smoke scripts for a local EVM fork that you start separately with your own local tooling and upstream provider outside this project. This project only connects to localhost and only performs read-only JSON-RPC calls.
+
+Check whether your local fork is reachable:
+
+```bash
+python scripts/check_local_evm_fork.py --local-rpc-url http://127.0.0.1:8545
+```
+
+Run Aave V3 read-only discovery after you have a PoolAddressesProvider/root address:
+
+```bash
+python scripts/aave_readonly_discovery.py --root-address <root-address> --local-rpc-url http://127.0.0.1:8545
+```
+
+If no local fork is running, `LOCAL_FORK_UNAVAILABLE` is a safe expected result. These scripts do not send transactions, do not use signing keys, do not execute Red drills, and do not silently fall back to MockArena for Aave V3.

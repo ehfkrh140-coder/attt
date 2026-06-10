@@ -64,9 +64,11 @@ def write_protocol_twin_summary(result: Any) -> str:
                 f"- Twin Fidelity Score: {result.twin_fidelity.overall:.2f}",
                 "- Environment Twin coverage: local external-world emulation configured",
                 f"- Unsupported components: {', '.join(result.unsupported_components) if result.unsupported_components else 'none'}",
+                f"- Local fork reachable: {'no' if result.status == 'LOCAL_FORK_UNAVAILABLE' else 'unknown'}",
+                f"- Read-only discovery: {getattr(result, 'read_only_discovery', 'no')}",
                 f"- Executable drills ran: {'yes' if result.executable_drills_ran else 'no'}",
                 f"- Execution gated: {'no' if result.executable_drills_ran else 'yes'}",
-                "- Red drills are selected automatically when executable simulation is supported.",
+                "- MockArena fallback: no" if result.protocol == "aave_v3" else "- Red drills are selected automatically when executable simulation is supported.",
             ]
         )
     else:

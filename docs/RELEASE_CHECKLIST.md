@@ -48,3 +48,10 @@ It does not implement executable EVM fork Red drills, a real Aave adapter, a Sui
 - [ ] `python scripts/run_protocol_twin.py --protocol aave_v3 --network ethereum --root-address <root-address> --local-rpc-url http://127.0.0.1:8545` reports either read-only discovery or `LOCAL_FORK_UNAVAILABLE` safely.
 - [ ] Phase 2A.1 does not execute EVM Red drills or silently fall back to MockArena.
 - [ ] `python scripts/verify_mvp.py` includes the Phase 2A.1 fixture smoke check and does not require Anvil or Hardhat.
+
+## Phase 2A.2 live local fork smoke checks
+
+- [ ] `python scripts/check_local_evm_fork.py --local-rpc-url http://127.0.0.1:8545` reports reachable or `LOCAL_FORK_UNAVAILABLE` safely.
+- [ ] `python scripts/aave_readonly_discovery.py --root-address <root-address> --local-rpc-url http://127.0.0.1:8545` reports read-only discovery, partial discovery, or unavailable safely.
+- [ ] Aave read-only discovery does not use MockArena fallback.
+- [ ] Smoke scripts do not send transactions, do not use signing keys, and do not require a live fork for CI.

@@ -102,6 +102,18 @@ def main() -> int:
     _check("Docs present", all(path.exists() for path in docs), results)
     _check("GitHub Actions workflow present", (ROOT / ".github" / "workflows" / "test.yml").exists(), results)
 
+    phase2a2_scripts = [ROOT / "scripts" / "check_local_evm_fork.py", ROOT / "scripts" / "aave_readonly_discovery.py"]
+    _check("Phase 2A.2 smoke scripts present", all(path.exists() for path in phase2a2_scripts), results)
+    script_text = "\n".join(path.read_text() for path in phase2a2_scripts if path.exists())
+    _check(
+        "Phase 2A.2 scripts stay read-only",
+        "eth_sendTransaction" not in script_text
+        and "eth_sendRawTransaction" not in script_text
+        and "private_key" not in script_text
+        and "mock_lending" not in script_text,
+        results,
+    )
+
     capability = (ROOT / "docs" / "CAPABILITY_STATUS.md").read_text()
     _check(
         "Gated adapter honesty",

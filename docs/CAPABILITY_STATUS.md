@@ -33,3 +33,6 @@
 | Aave V3 local-fork read-only discovery | Partial / Gated | Requires a user-provided local fork and root address; executable drills remain gated. |
 | Executable Aave fork drills | Not implemented | Phase 2A.1 is read-only only. |
 | Local fork transaction sending | Not supported | Read-only transport blocks send, sign, wallet, debug, txpool, and local mutation RPC methods. |
+| Local fork smoke script | Supported in Phase 2A.2 | Checks localhost fork reachability using read-only calls only. |
+| Aave V3 read-only discovery script | Supported in Phase 2A.2 | Requires local fork plus root address; reports partial/unavailable safely. |
+| Live local fork transactions | Not supported | Smoke tooling is read-only and keeps execution gated. |
