@@ -44,3 +44,13 @@
 | Phase 2B fork execution design | Design only | Policy and Arena interfaces exist, but execution is disabled. |
 | EVM fork execution arena | Gated placeholder | `execute_local_intent` raises unsupported until Phase 2B approval. |
 | First harmless fork drill candidate | Design only | Snapshot/revert and liveness sentinel; no asset movement. |
+
+## Phase 2B Preflight Support
+
+Phase 2B is still blocked and design-only. The new live-smoke support tools help a reviewer record manual read-only evidence before any future execution work is considered.
+
+- `python scripts/record_live_fork_smoke_result.py ...` writes a safe markdown record from reviewed local-only fields.
+- `python scripts/phase2b_preflight.py` checks that the manual smoke record, reviewed target manifest, and dependency graph review exist.
+- The preflight is expected to report `Phase 2B readiness: FAIL` until every review artifact is present.
+- Fork execution remains disabled by default, no transactions are sent, and executable EVM fork Red drills remain unsupported.
+- Do not include upstream endpoints, secrets, reusable payloads, or raw selectors in any preflight artifact.

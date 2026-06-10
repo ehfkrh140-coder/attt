@@ -178,3 +178,13 @@ This manual command is not run in CI. It still sends no transactions, uses no si
 Phase 2B is currently design-only. Fork execution is disabled by default, `EvmForkExecutionArena.execute_local_intent()` raises `UNSUPPORTED_EXECUTABLE_FORK_DRILLS`, and no executable EVM fork Red drills are implemented.
 
 Before any Phase 2B implementation, review `docs/PHASE_2B_FORK_EXECUTION_DESIGN.md`, `docs/PHASE_2B_FIRST_DRILL_CANDIDATE.md`, and `docs/PHASE_2B_READINESS_CHECKLIST.md`. The proposed first drill is a harmless snapshot/revert and liveness sentinel, not an exploit and not a fund-moving drill.
+
+## Phase 2B Preflight Support
+
+Phase 2B is still blocked and design-only. The new live-smoke support tools help a reviewer record manual read-only evidence before any future execution work is considered.
+
+- `python scripts/record_live_fork_smoke_result.py ...` writes a safe markdown record from reviewed local-only fields.
+- `python scripts/phase2b_preflight.py` checks that the manual smoke record, reviewed target manifest, and dependency graph review exist.
+- The preflight is expected to report `Phase 2B readiness: FAIL` until every review artifact is present.
+- Fork execution remains disabled by default, no transactions are sent, and executable EVM fork Red drills remain unsupported.
+- Do not include upstream endpoints, secrets, reusable payloads, or raw selectors in any preflight artifact.

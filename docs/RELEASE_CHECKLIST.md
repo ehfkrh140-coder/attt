@@ -79,3 +79,13 @@ It does not implement executable EVM fork Red drills, a real Aave adapter, a Sui
 - [ ] `execute_local_intent` raises `UNSUPPORTED_EXECUTABLE_FORK_DRILLS`.
 - [ ] First drill candidate is harmless and non-fund-moving.
 - [ ] CI does not run live fork execution.
+
+## Phase 2B Preflight Support
+
+Phase 2B is still blocked and design-only. The new live-smoke support tools help a reviewer record manual read-only evidence before any future execution work is considered.
+
+- `python scripts/record_live_fork_smoke_result.py ...` writes a safe markdown record from reviewed local-only fields.
+- `python scripts/phase2b_preflight.py` checks that the manual smoke record, reviewed target manifest, and dependency graph review exist.
+- The preflight is expected to report `Phase 2B readiness: FAIL` until every review artifact is present.
+- Fork execution remains disabled by default, no transactions are sent, and executable EVM fork Red drills remain unsupported.
+- Do not include upstream endpoints, secrets, reusable payloads, or raw selectors in any preflight artifact.

@@ -16,6 +16,7 @@ from reports.report_writer import write_protocol_twin_summary
 from simulation.auto_runner import AutoSimulationRequest, run_auto_simulation_sync
 from scripts.aave_readonly_discovery import run_discovery
 from scripts.check_local_evm_fork import run_check
+from scripts.phase2b_preflight import run_preflight
 from targets.protocol_catalog import MISSING_PROTOCOL_ROOT_ADDRESS, UNSUPPORTED_PROTOCOL_TWIN
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -107,6 +108,7 @@ def main() -> int:
         ROOT / "docs" / "PHASE_2B_READINESS_CHECKLIST.md",
         ROOT / "docs" / "PHASE_2B_FORK_EXECUTION_DESIGN.md",
         ROOT / "docs" / "PHASE_2B_FIRST_DRILL_CANDIDATE.md",
+        ROOT / "docs" / "PHASE_2B_PREFLIGHT.md",
         ROOT / "docs" / "templates" / "MANUAL_LIVE_FORK_SMOKE_RESULT_TEMPLATE.md",
     ]
     _check("Docs present", all(path.exists() for path in docs), results)
@@ -127,6 +129,37 @@ def main() -> int:
         and "mock_lending" not in script_text,
         results,
     )
+
+    phase2b_preflight_tools = [
+        ROOT / "scripts" / "record_live_fork_smoke_result.py",
+        ROOT / "scripts" / "phase2b_preflight.py",
+        ROOT / "docs" / "PHASE_2B_PREFLIGHT.md",
+    ]
+    _check("Phase 2B preflight tools present", all(path.exists() for path in phase2b_preflight_tools), results)
+    preflight_text = "\n".join(path.read_text() for path in phase2b_preflight_tools if path.exists())
+    _check(
+        "Phase 2B preflight tools stay gated",
+        "eth_sendTransaction" not in preflight_text
+        and "eth_sendRawTransaction" not in preflight_text
+        and "account.sign_transaction" not in preflight_text
+        and "LOCAL_EXECUTION_ENABLED" not in preflight_text
+        and "mock_lending" not in preflight_text,
+        results,
+    )
+    phase2b_preflight_output = run_preflight(
+        manual_smoke_result="docs/missing_manual_live_fork_smoke_result.md",
+        target_manifest="targets/generated/missing_aave_v3_readonly.yaml",
+        dependency_graph_review="docs/missing_dependency_graph_review.md",
+    )
+    _check(
+        "Phase 2B preflight remains blocked",
+        "Phase 2B readiness: FAIL" in phase2b_preflight_output
+        and "Fork execution disabled: yes" in phase2b_preflight_output
+        and "Execution arena unsupported: yes" in phase2b_preflight_output
+        and _safe(phase2b_preflight_output),
+        results,
+    )
+
     phase2a2_check_output = run_check("http://127.0.0.1:1")
     phase2a2_aave_output = run_discovery(root_address="aave-root", fixture_readonly=True)
     depth_audit = (ROOT / "docs" / "PHASE_2A_DEPTH_AUDIT.md").read_text()
@@ -198,6 +231,8 @@ def main() -> int:
             + phase2a2_check_output
             + "\n"
             + phase2a2_aave_output
+            + "\n"
+            + phase2b_preflight_output
         ),
         results,
     )

@@ -29,3 +29,12 @@ If any item is incomplete, stay in read-only Phase 2A.
 - [ ] explicit enable flag absent by default. Explicit enable flag is absent by default.
 - [ ] CI still does not run live fork execution.
 - [ ] `EvmForkExecutionArena.execute_local_intent()` still raises `UNSUPPORTED_EXECUTABLE_FORK_DRILLS` until implementation approval.
+
+## Live-smoke support preflight gates
+
+- [ ] `scripts/record_live_fork_smoke_result.py` has been used to create a safe manual smoke record.
+- [ ] `scripts/phase2b_preflight.py` reports missing prerequisites until review artifacts exist.
+- [ ] `docs/PHASE_2B_PREFLIGHT.md` has been read by the reviewer.
+- [ ] The target manifest remains unconfirmed unless a reviewer explicitly confirms scope.
+- [ ] Fork execution mode is still disabled by default.
+- [ ] `EvmForkExecutionArena.execute_local_intent` still raises `UNSUPPORTED_EXECUTABLE_FORK_DRILLS`.
