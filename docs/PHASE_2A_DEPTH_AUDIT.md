@@ -71,7 +71,7 @@ The manual smoke script is optional and is intentionally not run by CI.
 Aave V3 read-only discovery now attempts to read reserve metadata from the local fork after the PoolAddressesProvider resolves the Pool. The resolver asks only safe named read calls for the reserve list, per-reserve data, reserve configuration, asset price, oracle source, and ACL role labels, then feeds the discovered reserve assets, aToken/debt-token relationships, watch items, and basic configuration flags into Recon.
 
 The default reserve limit is 8. A user may request a different limit, but the resolver enforces a hard cap of 50 and reports whether truncation occurred. Discovery may be full, partial, decode-unavailable, or unavailable depending on what the local fork returns. The result is still read-only: no transactions are sent, Red drills are recommendation-only, MockArena is not used as Aave fallback, and Phase 2B execution remains blocked.
-
+https://github.com/ehfkrh140-coder/attt/pull/22/conflict?name=docs%252FRELEASE_CHECKLIST.md&base_oid=0b7001811e6fdaadf19d6bab964c493419dbbb33&head_oid=39439f813829dc972d5ede6d65a80263a9a74433
 ## Phase 2A.5 evidence pack distinction
 
 Phase 2A.5 adds a generated evidence pack so reviewers can distinguish fixture-backed CI evidence from optional live local fork evidence. The fixture-backed evidence proves the review workflow and safety checks can run in CI, but it does not prove real local fork connectivity or real Aave compatibility in a user's environment.
