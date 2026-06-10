@@ -172,3 +172,9 @@ python scripts/manual_live_fork_smoke.py --local-rpc-url http://127.0.0.1:8545 -
 ```
 
 This manual command is not run in CI. It still sends no transactions, uses no signing keys, executes no Aave Red drills, and does not enable Phase 2B. See `docs/PHASE_2A_DEPTH_AUDIT.md` and `docs/PHASE_2B_READINESS_CHECKLIST.md` before planning executable fork work.
+
+## Phase 2B design-only status
+
+Phase 2B is currently design-only. Fork execution is disabled by default, `EvmForkExecutionArena.execute_local_intent()` raises `UNSUPPORTED_EXECUTABLE_FORK_DRILLS`, and no executable EVM fork Red drills are implemented.
+
+Before any Phase 2B implementation, review `docs/PHASE_2B_FORK_EXECUTION_DESIGN.md`, `docs/PHASE_2B_FIRST_DRILL_CANDIDATE.md`, and `docs/PHASE_2B_READINESS_CHECKLIST.md`. The proposed first drill is a harmless snapshot/revert and liveness sentinel, not an exploit and not a fund-moving drill.

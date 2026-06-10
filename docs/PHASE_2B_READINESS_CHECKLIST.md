@@ -18,3 +18,14 @@ Phase 2B must not begin until all checks below are complete.
 - [ ] CI continues to run fixture-backed tests without requiring a live fork.
 
 If any item is incomplete, stay in read-only Phase 2A.
+
+## Concrete design gates added before implementation
+
+- [ ] manual_live_fork_smoke_result.md exists and is reviewed.
+- [ ] reviewed_target_manifest exists. Reviewed target manifest exists.
+- [ ] Dependency graph review exists.
+- [ ] Fork execution policy has been reviewed.
+- [ ] First drill candidate has been approved.
+- [ ] explicit enable flag absent by default. Explicit enable flag is absent by default.
+- [ ] CI still does not run live fork execution.
+- [ ] `EvmForkExecutionArena.execute_local_intent()` still raises `UNSUPPORTED_EXECUTABLE_FORK_DRILLS` until implementation approval.

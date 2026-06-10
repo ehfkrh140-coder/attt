@@ -71,3 +71,11 @@ It does not implement executable EVM fork Red drills, a real Aave adapter, a Sui
 - [ ] `scripts/manual_live_fork_smoke.py` is optional and not run by CI.
 - [ ] Manual smoke output remains read-only and safe.
 - [ ] Reports do not contain Aave selectors or raw calldata.
+
+## Phase 2B design-only checks
+
+- [ ] Fork execution policy defaults to disabled.
+- [ ] EVM fork execution arena is placeholder-only.
+- [ ] `execute_local_intent` raises `UNSUPPORTED_EXECUTABLE_FORK_DRILLS`.
+- [ ] First drill candidate is harmless and non-fund-moving.
+- [ ] CI does not run live fork execution.

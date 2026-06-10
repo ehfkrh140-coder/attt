@@ -7,7 +7,10 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
 import tomllib
 
+from arenas.evm_fork_execution_arena import EvmForkExecutionArena, UNSUPPORTED_EXECUTABLE_FORK_DRILLS
+from core.fork_execution_policy import ForkExecutionMode, default_fork_execution_mode
 from core.safety import SafetyGuard
+from redteam.local_tx_intent import LocalTxIntent
 from eval.regression_suite import run_core_regression_suite_sync
 from reports.report_writer import write_protocol_twin_summary
 from simulation.auto_runner import AutoSimulationRequest, run_auto_simulation_sync
@@ -102,6 +105,9 @@ def main() -> int:
         ROOT / "docs" / "RELEASE_CHECKLIST.md",
         ROOT / "docs" / "PHASE_2A_DEPTH_AUDIT.md",
         ROOT / "docs" / "PHASE_2B_READINESS_CHECKLIST.md",
+        ROOT / "docs" / "PHASE_2B_FORK_EXECUTION_DESIGN.md",
+        ROOT / "docs" / "PHASE_2B_FIRST_DRILL_CANDIDATE.md",
+        ROOT / "docs" / "templates" / "MANUAL_LIVE_FORK_SMOKE_RESULT_TEMPLATE.md",
     ]
     _check("Docs present", all(path.exists() for path in docs), results)
     _check("GitHub Actions workflow present", (ROOT / ".github" / "workflows" / "test.yml").exists(), results)
@@ -133,6 +139,34 @@ def main() -> int:
         and "Phase 2B must not begin" in phase2b_checklist,
         results,
     )
+
+    first_candidate = (ROOT / "docs" / "PHASE_2B_FIRST_DRILL_CANDIDATE.md").read_text()
+    phase2b_design = (ROOT / "docs" / "PHASE_2B_FORK_EXECUTION_DESIGN.md").read_text()
+    template = (ROOT / "docs" / "templates" / "MANUAL_LIVE_FORK_SMOKE_RESULT_TEMPLATE.md").read_text()
+    dummy_intent = LocalTxIntent(
+        target="aave-root",
+        function_category="sentinel",
+        calldata_label="safe-design-only",
+        value=0,
+        sender_role="guardian",
+        gas_strategy="local-normal",
+        safety_scope="local-fork-design",
+    )
+    execute_raises_unsupported = False
+    try:
+        EvmForkExecutionArena().execute_local_intent(dummy_intent)
+    except RuntimeError as exc:
+        execute_raises_unsupported = str(exc) == UNSUPPORTED_EXECUTABLE_FORK_DRILLS
+    _check(
+        "Phase 2B remains gated",
+        default_fork_execution_mode() == ForkExecutionMode.DISABLED
+        and execute_raises_unsupported
+        and "defaults to disabled" in phase2b_design
+        and "Not an exploit" in first_candidate
+        and "Do not include upstream RPC URLs" in template,
+        results,
+    )
+
     _check(
         "Phase 2A.2 safe output checks",
         "LOCAL_FORK_UNAVAILABLE" in phase2a2_check_output

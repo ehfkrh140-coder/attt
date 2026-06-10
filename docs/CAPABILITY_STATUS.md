@@ -41,3 +41,6 @@
 | Phase 2A depth audit | Supported | Documents fixture-backed CI, optional live local fork manual checks, and remaining limits. |
 | Manual live local fork smoke | Optional / Manual | User-run localhost-only read-only smoke; not run by CI. |
 | Phase 2B readiness checklist | Supported | Blocks executable fork work until live read-only and safety prerequisites are reviewed. |
+| Phase 2B fork execution design | Design only | Policy and Arena interfaces exist, but execution is disabled. |
+| EVM fork execution arena | Gated placeholder | `execute_local_intent` raises unsupported until Phase 2B approval. |
+| First harmless fork drill candidate | Design only | Snapshot/revert and liveness sentinel; no asset movement. |

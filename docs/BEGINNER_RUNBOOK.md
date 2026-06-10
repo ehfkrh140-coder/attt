@@ -177,3 +177,9 @@ python scripts/manual_live_fork_smoke.py --local-rpc-url http://127.0.0.1:8545 -
 ```
 
 This optional command is not run in CI. It sends no transactions, uses no signing keys, and does not execute Red drills on Aave. Phase 2B is future work and requires the checklist in `docs/PHASE_2B_READINESS_CHECKLIST.md`.
+
+## Phase 2B design-only status
+
+Phase 2B is not enabled. The repository now contains design documents for future mediated local fork execution, but executable EVM fork Red drills remain blocked.
+
+The proposed first drill is harmless: snapshot the local fork, dry-run or emit a mock-local no-op sentinel through the Arena design, revert, and confirm target liveness. It is not an exploit, not a real attack, and not a fund-moving drill.
