@@ -20,3 +20,5 @@ jobs:
         run: pytest -q
       - name: Run example entrypoint
         run: python main.py
+      - name: Run MVP verifier
+        run: python scripts/verify_mvp.py

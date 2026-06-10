@@ -84,3 +84,25 @@ python scripts/run_protocol_twin.py --protocol haedal
 ```
 
 `mock_lending` runs the full MockArena simulation. `aave_v3` follows the EVM Fork Twin path and reports missing root or gated execution status when needed. `haedal` reports unsupported Sui adapter status until a real Sui state twin adapter exists.
+
+## MockArena MVP Release Verification
+
+Run these commands before treating v0.1.0 as ready:
+
+```bash
+pip install -e ".[test]"
+pytest -q
+python main.py
+python scripts/run_protocol_twin.py --protocol mock_lending
+python scripts/run_protocol_twin.py --protocol aave_v3 --network ethereum
+python scripts/run_protocol_twin.py --protocol haedal
+python scripts/verify_mvp.py
+```
+
+Expected behavior:
+
+- `mock_lending` runs the executable MockArena simulation.
+- `aave_v3` reports the EVM Fork Twin path and a missing-root or gated/read-only status.
+- `haedal` reports Sui State Twin unsupported/gated status.
+- `verify_mvp.py` checks release readiness and prints `Overall: PASS` when local checks pass.
+- GitHub Actions should show a green `tests` workflow after push or pull request.

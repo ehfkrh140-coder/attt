@@ -103,3 +103,15 @@ python scripts/run_protocol_twin.py --protocol haedal
 ```
 
 `mock_lending` is the safe learning and regression path. `aave_v3` uses the EVM Fork Twin onboarding path and reports missing root or gated execution status when needed. `haedal` reports unsupported status until a Sui state twin adapter exists.
+
+## How do I know it works?
+
+A beginner can verify the v0.1.0 MVP by checking:
+
+1. GitHub Actions `tests` workflow is green.
+2. `python main.py` prints the five score summary.
+3. `python scripts/verify_mvp.py` prints `Overall: PASS`.
+4. `docs/CAPABILITY_STATUS.md` honestly says what is supported, partial/gated, and unsupported.
+5. `python scripts/run_protocol_twin.py --protocol mock_lending` runs the MockArena simulation.
+6. `python scripts/run_protocol_twin.py --protocol aave_v3 --network ethereum` reports missing-root or gated/read-only status safely.
+7. `python scripts/run_protocol_twin.py --protocol haedal` reports unsupported Sui adapter status safely.
