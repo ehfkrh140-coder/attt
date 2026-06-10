@@ -66,3 +66,14 @@ If required artifacts are missing, the preflight should report `Phase 2B readine
 ## Review requirement
 
 A reviewer must confirm that the manifest scope is safe before any future execution mode is considered. Even with all files present, this repository still keeps fork execution disabled and `EvmForkExecutionArena.execute_local_intent` unsupported.
+
+## Phase 2A.5 artifact inputs
+
+Phase 2B preflight now consumes three review artifacts plus the manual smoke record:
+
+- `--evidence-pack` from `scripts/generate_live_fork_evidence_pack.py`,
+- `--target-manifest` from the read-only Aave export,
+- `--dependency-graph-review` from `scripts/generate_dependency_graph_review.py`,
+- `--manual-smoke-result` from the user-run live fork smoke record.
+
+Preflight fails if the evidence pack is fixture-backed, if the manual live smoke record is missing, if the target manifest is missing, if the dependency graph review is missing, or if scope is not explicitly reviewed. Review-ready status is not execution-ready status. Fork execution remains disabled and unsupported.

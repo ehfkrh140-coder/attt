@@ -194,3 +194,18 @@ Phase 2B is still blocked and design-only. The new live-smoke support tools help
 Aave V3 read-only discovery now attempts to read reserve metadata from the local fork after the PoolAddressesProvider resolves the Pool. The resolver asks only safe named read calls for the reserve list, per-reserve data, reserve configuration, asset price, oracle source, and ACL role labels, then feeds the discovered reserve assets, aToken/debt-token relationships, watch items, and basic configuration flags into Recon.
 
 The default reserve limit is 8. A user may request a different limit, but the resolver enforces a hard cap of 50 and reports whether truncation occurred. Discovery may be full, partial, decode-unavailable, or unavailable depending on what the local fork returns. The result is still read-only: no transactions are sent, Red drills are recommendation-only, MockArena is not used as Aave fallback, and Phase 2B execution remains blocked.
+
+## Phase 2A.5 Read-only Evidence Pack Workflow
+
+Phase 2A.5 turns a local fork read-only discovery run into review artifacts. The workflow is still read-only and review-only: it sends no transactions, uses no signing secrets, executes no Aave Red drills, and does not enable Phase 2B.
+
+Beginner flow:
+
+1. Start your local fork with your own local tooling.
+2. Check that the local fork is reachable with `python scripts/check_local_evm_fork.py --local-rpc-url http://127.0.0.1:8545`.
+3. Generate the evidence pack with `python scripts/generate_live_fork_evidence_pack.py --local-rpc-url http://127.0.0.1:8545 --root-address <root-address> --network ethereum --output docs/live_fork_evidence/aave_v3_evidence_pack.md --export-target targets/generated/aave_v3_readonly.yaml --export-dependency-review docs/dependency_graph_review.md`.
+4. Review the generated target manifest with `python scripts/review_target_manifest.py --target targets/generated/aave_v3_readonly.yaml`.
+5. Review the dependency graph candidate with `python scripts/generate_dependency_graph_review.py --target targets/generated/aave_v3_readonly.yaml --output docs/dependency_graph_review.md`.
+6. Run `python scripts/phase2b_preflight.py --evidence-pack docs/live_fork_evidence/aave_v3_evidence_pack.md --target-manifest targets/generated/aave_v3_readonly.yaml --dependency-graph-review docs/dependency_graph_review.md`.
+
+Fixture-backed evidence is useful for CI, but fixture evidence is not enough for Phase 2B. Live local fork evidence must be user-run and reviewed. Target manifest review does not confirm scope automatically. Dependency graph review is a review artifact, not execution permission. Phase 2B remains blocked until explicit future execution gates are implemented and reviewed.

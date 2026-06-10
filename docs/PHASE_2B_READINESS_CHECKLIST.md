@@ -38,3 +38,15 @@ If any item is incomplete, stay in read-only Phase 2A.
 - [ ] The target manifest remains unconfirmed unless a reviewer explicitly confirms scope.
 - [ ] Fork execution mode is still disabled by default.
 - [ ] `EvmForkExecutionArena.execute_local_intent` still raises `UNSUPPORTED_EXECUTABLE_FORK_DRILLS`.
+
+## Phase 2A.5 evidence and review gates
+
+- [ ] Live local fork evidence pack generated from localhost and reviewed.
+- [ ] Fixture-only evidence explicitly rejected for Phase 2B execution readiness.
+- [ ] Read-only TargetProtocolSpec manifest candidate reviewed without auto-confirming scope.
+- [ ] Dependency graph review candidate generated from Recon and reserve metadata.
+- [ ] Manual live fork smoke result recorded and reviewed.
+- [ ] Phase 2B preflight run against evidence pack, manifest, and dependency review.
+- [ ] Preflight output reviewed as review-ready only, not execution-enabled.
+- [ ] Fork execution mode remains disabled.
+- [ ] EvmForkExecutionArena still raises unsupported for local execution.

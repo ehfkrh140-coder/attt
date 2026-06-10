@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import sys
+import tempfile
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
@@ -17,6 +18,9 @@ from simulation.auto_runner import AutoSimulationRequest, run_auto_simulation_sy
 from scripts.aave_readonly_discovery import run_discovery
 from scripts.check_local_evm_fork import run_check
 from scripts.phase2b_preflight import run_preflight
+from scripts.generate_live_fork_evidence_pack import generate_evidence_pack
+from scripts.review_target_manifest import render_manifest_review, review_manifest
+from scripts.generate_dependency_graph_review import generate_dependency_review
 from targets.protocol_catalog import MISSING_PROTOCOL_ROOT_ADDRESS, UNSUPPORTED_PROTOCOL_TWIN
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -133,6 +137,9 @@ def main() -> int:
     phase2b_preflight_tools = [
         ROOT / "scripts" / "record_live_fork_smoke_result.py",
         ROOT / "scripts" / "phase2b_preflight.py",
+        ROOT / "scripts" / "generate_live_fork_evidence_pack.py",
+        ROOT / "scripts" / "generate_dependency_graph_review.py",
+        ROOT / "scripts" / "review_target_manifest.py",
         ROOT / "docs" / "PHASE_2B_PREFLIGHT.md",
     ]
     _check("Phase 2B preflight tools present", all(path.exists() for path in phase2b_preflight_tools), results)
@@ -159,6 +166,50 @@ def main() -> int:
         and _safe(phase2b_preflight_output),
         results,
     )
+
+    with tempfile.TemporaryDirectory() as tmpdir:
+        evidence_path = Path(tmpdir) / "aave_v3_evidence_pack.md"
+        target_path = Path(tmpdir) / "aave_v3_readonly.yaml"
+        review_path = Path(tmpdir) / "dependency_graph_review.md"
+        generated_pack, evidence_output = generate_evidence_pack(
+            local_rpc_url="http://127.0.0.1:8545",
+            root_address="aave-root",
+            network="ethereum",
+            fork_block=None,
+            output=str(evidence_path),
+            export_target=str(target_path),
+            export_dependency_review=str(review_path),
+            fixture_readonly=True,
+        )
+        manifest_review_output = render_manifest_review(review_manifest(target_path))
+        _dep_evidence, dependency_review_output = generate_dependency_review(target_path, Path(tmpdir) / "dependency_graph_review_review.md")
+        fixture_preflight_output = run_preflight(
+            manual_smoke_result=str(Path(tmpdir) / "missing_manual_smoke.md"),
+            evidence_pack=str(evidence_path),
+            target_manifest=str(target_path),
+            dependency_graph_review=str(review_path),
+        )
+        _check(
+            "Phase 2A.5 evidence pack fixture smoke",
+            evidence_path.exists()
+            and target_path.exists()
+            and review_path.exists()
+            and generated_pack.phase2b_candidate_status == "blocked_fixture_only"
+            and "Evidence source: fixture-backed" in evidence_output
+            and "Reserve count: 2" in evidence_output
+            and "Target Manifest Review" in manifest_review_output
+            and "Dependency Graph Review Candidate" in dependency_review_output
+            and _safe(evidence_output + "\n" + manifest_review_output + "\n" + dependency_review_output),
+            results,
+        )
+        _check(
+            "Phase 2A.5 preflight remains blocked",
+            "Phase 2B readiness: FAIL" in fixture_preflight_output
+            and "fixture-backed evidence is not enough" in fixture_preflight_output
+            and "Execution enabled: no" in fixture_preflight_output
+            and _safe(fixture_preflight_output),
+            results,
+        )
 
     phase2a2_check_output = run_check("http://127.0.0.1:1")
     phase2a2_aave_output = run_discovery(root_address="aave-root", fixture_readonly=True)

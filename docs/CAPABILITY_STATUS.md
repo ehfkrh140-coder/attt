@@ -60,3 +60,11 @@ Phase 2B is still blocked and design-only. The new live-smoke support tools help
 Aave V3 read-only discovery now attempts to read reserve metadata from the local fork after the PoolAddressesProvider resolves the Pool. The resolver asks only safe named read calls for the reserve list, per-reserve data, reserve configuration, asset price, oracle source, and ACL role labels, then feeds the discovered reserve assets, aToken/debt-token relationships, watch items, and basic configuration flags into Recon.
 
 The default reserve limit is 8. A user may request a different limit, but the resolver enforces a hard cap of 50 and reports whether truncation occurred. Discovery may be full, partial, decode-unavailable, or unavailable depending on what the local fork returns. The result is still read-only: no transactions are sent, Red drills are recommendation-only, MockArena is not used as Aave fallback, and Phase 2B execution remains blocked.
+
+## Phase 2A.5 evidence workflow status
+
+- Live local fork evidence pack: available as a read-only review workflow.
+- Fixture evidence pack: available for CI and release verification only; it is not enough for Phase 2B.
+- Target manifest review: parses generated manifests and checks read-only flags, but does not confirm scope automatically.
+- Dependency graph review: generated from Recon output and reserve metadata; it is a review candidate, not execution permission.
+- Phase 2B execution: still blocked and disabled. No transactions are sent and no Aave Red drills run.

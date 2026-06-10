@@ -199,3 +199,26 @@ Phase 2B is still blocked and design-only. The new live-smoke support tools help
 Aave V3 read-only discovery now attempts to read reserve metadata from the local fork after the PoolAddressesProvider resolves the Pool. The resolver asks only safe named read calls for the reserve list, per-reserve data, reserve configuration, asset price, oracle source, and ACL role labels, then feeds the discovered reserve assets, aToken/debt-token relationships, watch items, and basic configuration flags into Recon.
 
 The default reserve limit is 8. A user may request a different limit, but the resolver enforces a hard cap of 50 and reports whether truncation occurred. Discovery may be full, partial, decode-unavailable, or unavailable depending on what the local fork returns. The result is still read-only: no transactions are sent, Red drills are recommendation-only, MockArena is not used as Aave fallback, and Phase 2B execution remains blocked.
+
+## Phase 2A.5: Read-only evidence pack and review workflow
+
+Use this workflow after Phase 2A read-only discovery works in fixture mode and you want to record a real local fork discovery attempt. It is still not Phase 2B execution.
+
+What the evidence pack does:
+
+- records whether the local fork was reachable,
+- records the Aave read-only discovery status,
+- exports a read-only TargetProtocolSpec manifest candidate,
+- generates a dependency graph review candidate from Recon,
+- feeds those artifacts into Phase 2B preflight,
+- keeps Phase 2B blocked unless live local evidence and human review artifacts exist.
+
+Commands:
+
+```bash
+python scripts/generate_live_fork_evidence_pack.py --local-rpc-url http://127.0.0.1:8545 --root-address <root-address> --network ethereum --output docs/live_fork_evidence/aave_v3_evidence_pack.md --export-target targets/generated/aave_v3_readonly.yaml --export-dependency-review docs/dependency_graph_review.md
+python scripts/review_target_manifest.py --target targets/generated/aave_v3_readonly.yaml
+python scripts/phase2b_preflight.py --evidence-pack docs/live_fork_evidence/aave_v3_evidence_pack.md --target-manifest targets/generated/aave_v3_readonly.yaml --dependency-graph-review docs/dependency_graph_review.md
+```
+
+Fixture evidence is not enough for Phase 2B. Reviews do not enable execution. No transaction is sent, no Aave Red drill is executed, and MockArena is not used as a fallback for Aave read-only discovery.
