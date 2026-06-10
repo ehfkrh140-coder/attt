@@ -64,7 +64,12 @@ class AaveV3Resolver:
         review = self.scope_review(request)
         root = self._root_for(request)
         if root is None:
-            return ProtocolResolutionResult(target=None, scope_review=review, error_code=MISSING_PROTOCOL_ROOT_ADDRESS)
+            return ProtocolResolutionResult(
+                target=None,
+                scope_review=review,
+                error_code=MISSING_PROTOCOL_ROOT_ADDRESS,
+                discovery_status="missing_root",
+            )
 
         notes: list[str] = ["evm_fork_twin_readonly_resolution", "executable_fork_drills_gated_until_adapter_ready"]
         contracts: list[dict[str, Any]] = [{"name": "PoolAddressesProvider", "address": root, "category": "admin_config"}]
@@ -72,8 +77,10 @@ class AaveV3Resolver:
         admin_roles = ["pool_admin", "risk_admin"]
 
         client = readonly_client_or_arena if isinstance(readonly_client_or_arena, EvmReadonlyClient) else None
+        unresolved_count = 0
         if client is None:
             notes.append("readonly_client_unavailable_partial_resolution")
+            unresolved_count = len(AAVE_PROVIDER_CALLS)
         else:
             for name, call_factory in AAVE_PROVIDER_CALLS.items():
                 try:
@@ -85,10 +92,19 @@ class AaveV3Resolver:
                     if name == "PriceOracle":
                         oracle_sources.append(f"AaveV3{name}")
                 else:
+                    unresolved_count += 1
                     notes.append(f"unresolved_{name}")
 
         if not oracle_sources and any(contract["category"] == "oracle" for contract in contracts):
             oracle_sources = [contract["name"] for contract in contracts if contract["category"] == "oracle"]
+
+        if client is None:
+            discovery_status = "unavailable"
+        elif unresolved_count == 0:
+            discovery_status = "fully_discovered"
+        else:
+            discovery_status = "partially_discovered"
+        notes.append(f"discovery_status_{discovery_status}")
 
         target = TargetProtocolSpec(
             protocol_name="aave_v3",
@@ -105,4 +121,4 @@ class AaveV3Resolver:
             authorized_scope=False,
             scope_confirmed=False,
         )
-        return ProtocolResolutionResult(target=target, scope_review=review, notes=notes)
+        return ProtocolResolutionResult(target=target, scope_review=review, notes=notes, discovery_status=discovery_status)

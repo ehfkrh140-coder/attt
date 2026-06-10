@@ -147,3 +147,16 @@ python scripts/aave_readonly_discovery.py --root-address <root-address> --local-
 ```
 
 If no local fork is running, `LOCAL_FORK_UNAVAILABLE` is a safe expected result. These scripts do not send transactions, do not use signing keys, do not execute Red drills, and do not silently fall back to MockArena for Aave V3.
+
+## Phase 2A Read-only Local Fork Workflow
+
+Phase 2A is the safe local-fork discovery workflow for EVM protocols. Start a local fork yourself with your own local tooling and upstream provider outside this project. This project only connects to localhost.
+
+1. Run `python scripts/check_local_evm_fork.py --local-rpc-url http://127.0.0.1:8545` first.
+2. Then run `python scripts/aave_readonly_discovery.py --root-address <root-address> --local-rpc-url http://127.0.0.1:8545`.
+3. Discovery can be `full`, `partial`, `unavailable`, or `missing-root`.
+4. You may export a safe read-only target manifest with `--export-target targets/generated/aave_v3_readonly.yaml`.
+5. No transactions are sent.
+6. Red drills are not executed on Aave.
+7. MockArena remains separate and is not used as an Aave fallback.
+8. Phase 2B is future work for mediated local fork execution.

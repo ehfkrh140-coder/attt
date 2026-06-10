@@ -20,6 +20,7 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument("--root-address")
     parser.add_argument("--local-rpc-url", default="http://127.0.0.1:8545")
     parser.add_argument("--target")
+    parser.add_argument("--fixture-readonly", action="store_true", help=argparse.SUPPRESS)
     return parser
 
 
@@ -56,6 +57,7 @@ def main() -> None:
                 fork_block=args.fork_block,
                 root_address=args.root_address,
                 local_rpc_url=args.local_rpc_url,
+                fixture_readonly=args.fixture_readonly,
             )
         )
     print(write_protocol_twin_summary(result))

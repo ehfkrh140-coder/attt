@@ -11,6 +11,8 @@ from core.safety import SafetyGuard
 from eval.regression_suite import run_core_regression_suite_sync
 from reports.report_writer import write_protocol_twin_summary
 from simulation.auto_runner import AutoSimulationRequest, run_auto_simulation_sync
+from scripts.aave_readonly_discovery import run_discovery
+from scripts.check_local_evm_fork import run_check
 from targets.protocol_catalog import MISSING_PROTOCOL_ROOT_ADDRESS, UNSUPPORTED_PROTOCOL_TWIN
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -78,7 +80,7 @@ def main() -> int:
     phase2a_summary = write_protocol_twin_summary(phase2a_result)
     _check(
         "Phase 2A.1 read-only fixture smoke",
-        phase2a_result.read_only_discovery == "yes"
+        phase2a_result.read_only_discovery == "fully_discovered"
         and not phase2a_result.executable_drills_ran
         and phase2a_result.protocol_twin_mode == "evm_fork_twin"
         and _safe(phase2a_summary),
@@ -113,6 +115,16 @@ def main() -> int:
         and "mock_lending" not in script_text,
         results,
     )
+    phase2a2_check_output = run_check("http://127.0.0.1:1")
+    phase2a2_aave_output = run_discovery(root_address="aave-root", fixture_readonly=True)
+    _check(
+        "Phase 2A.2 safe output checks",
+        "LOCAL_FORK_UNAVAILABLE" in phase2a2_check_output
+        and "Read-only discovery: full" in phase2a2_aave_output
+        and "Executable drills ran: no" in phase2a2_aave_output
+        and _safe(phase2a2_check_output + "\n" + phase2a2_aave_output),
+        results,
+    )
 
     capability = (ROOT / "docs" / "CAPABILITY_STATUS.md").read_text()
     _check(
@@ -122,7 +134,23 @@ def main() -> int:
         and "real Haedal adapter" in capability,
         results,
     )
-    _check("Safety report sanitizer", _safe(main_summary + "\n" + aave_summary + "\n" + phase2a_summary + "\n" + haedal_summary), results)
+    _check(
+        "Safety report sanitizer",
+        _safe(
+            main_summary
+            + "\n"
+            + aave_summary
+            + "\n"
+            + phase2a_summary
+            + "\n"
+            + haedal_summary
+            + "\n"
+            + phase2a2_check_output
+            + "\n"
+            + phase2a2_aave_output
+        ),
+        results,
+    )
 
     overall = all(passed for _, passed in results)
     lines = ["MockArena MVP Verification"]

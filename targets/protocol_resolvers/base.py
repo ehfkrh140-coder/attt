@@ -32,6 +32,7 @@ class ProtocolResolutionResult:
     scope_review: ScopeReviewReport
     error_code: str | None = None
     notes: list[str] = field(default_factory=list)
+    discovery_status: str = "unavailable"
 
 
 class ProtocolResolver(Protocol):

@@ -36,3 +36,5 @@
 | Local fork smoke script | Supported in Phase 2A.2 | Checks localhost fork reachability using read-only calls only. |
 | Aave V3 read-only discovery script | Supported in Phase 2A.2 | Requires local fork plus root address; reports partial/unavailable safely. |
 | Live local fork transactions | Not supported | Smoke tooling is read-only and keeps execution gated. |
+| Safe read-only target export | Supported in Phase 2A | Exports unconfirmed Aave read-only TargetProtocolSpec manifests without executable scope. |
+| Phase 2B executable fork drills | Future work | Not implemented in Phase 2A; local fork execution remains gated. |

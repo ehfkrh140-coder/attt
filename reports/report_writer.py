@@ -52,6 +52,14 @@ Plain English:
     return report
 
 
+def _display_readonly_status(status: str) -> str:
+    return {
+        "fully_discovered": "full",
+        "partially_discovered": "partial",
+        "missing_root": "missing-root",
+    }.get(status, status)
+
+
 def write_protocol_twin_summary(result: Any) -> str:
     scorecard = result.scorecard
     if scorecard is None:
@@ -65,7 +73,7 @@ def write_protocol_twin_summary(result: Any) -> str:
                 "- Environment Twin coverage: local external-world emulation configured",
                 f"- Unsupported components: {', '.join(result.unsupported_components) if result.unsupported_components else 'none'}",
                 f"- Local fork reachable: {'no' if result.status == 'LOCAL_FORK_UNAVAILABLE' else 'unknown'}",
-                f"- Read-only discovery: {getattr(result, 'read_only_discovery', 'no')}",
+                f"- Read-only discovery: {_display_readonly_status(getattr(result, 'read_only_discovery', 'no'))}",
                 f"- Executable drills ran: {'yes' if result.executable_drills_ran else 'no'}",
                 f"- Execution gated: {'no' if result.executable_drills_ran else 'yes'}",
                 "- MockArena fallback: no" if result.protocol == "aave_v3" else "- Red drills are selected automatically when executable simulation is supported.",
@@ -86,10 +94,11 @@ def write_protocol_twin_summary(result: Any) -> str:
         if getattr(result, "read_only_discovery", "no") != "no":
             extra_lines.extend(
                 [
-                    f"- Read-only discovery: {result.read_only_discovery}",
+                    f"- Read-only discovery: {_display_readonly_status(result.read_only_discovery)}",
                     "- Execution gated: yes",
                     f"- Discovered contracts: {', '.join(result.discovered_contracts) if result.discovered_contracts else 'partial'}",
                     f"- Selected drill recommendations: {', '.join(result.selected_drills) if result.selected_drills else 'none'}",
+                    f"- Recon risk hypotheses count: {len(getattr(result.recon_report, 'risk_hypotheses', [])) if getattr(result, 'recon_report', None) else 0}",
                 ]
             )
         if extra_lines:

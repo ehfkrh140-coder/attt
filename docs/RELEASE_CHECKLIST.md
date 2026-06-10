@@ -55,3 +55,11 @@ It does not implement executable EVM fork Red drills, a real Aave adapter, a Sui
 - [ ] `python scripts/aave_readonly_discovery.py --root-address <root-address> --local-rpc-url http://127.0.0.1:8545` reports read-only discovery, partial discovery, or unavailable safely.
 - [ ] Aave read-only discovery does not use MockArena fallback.
 - [ ] Smoke scripts do not send transactions, do not use signing keys, and do not require a live fork for CI.
+
+## Phase 2A read-only workflow checks
+
+- [ ] Local fork check reports PASS, BLOCKED, or UNAVAILABLE with no traceback.
+- [ ] Aave read-only discovery reports full, partial, unavailable, or missing-root.
+- [ ] Optional target export keeps `authorized_scope=false` and `scope_confirmed=false`.
+- [ ] Reports contain selected Red drill recommendations as gated, not executed.
+- [ ] Phase 2B remains documented as future work.

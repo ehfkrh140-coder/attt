@@ -216,7 +216,7 @@ class AutoSimulationRunner:
             modes_tested=[],
             unsupported_components=unsupported,
             resolution=resolution,
-            read_only_discovery="yes",
+            read_only_discovery=resolution.discovery_status,
             discovered_contracts=[f"{contract.get('name')}:{contract.get('category')}" for contract in resolution.target.in_scope_contracts],
         )
 
