@@ -1,3 +1,7 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
 [project]
 name = "defi-defense-sim-lab"
 version = "0.1.0"
@@ -6,7 +10,31 @@ requires-python = ">=3.11"
 dependencies = ["pyyaml>=6.0"]
 
 [project.optional-dependencies]
-test = ["pytest>=8.0"]
+test = ["pytest>=8.0", "pyyaml>=6.0"]
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = [
+  "adapters*",
+  "arenas*",
+  "blue*",
+  "core*",
+  "environment*",
+  "eval*",
+  "forks*",
+  "recon*",
+  "redteam*",
+  "reports*",
+  "simulation*",
+  "targets*",
+]
+exclude = [
+  "contracts*",
+  "docs*",
+  "tests*",
+  "examples*",
+  "scripts*",
+]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]

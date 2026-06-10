@@ -127,3 +127,36 @@ def test_github_actions_workflow_exists():
     lowered = text.lower()
     forbidden = ["secrets", "private_key", "infura", "alchemy", "quicknode", "ankr", "blastapi", "publicnode", "mainnet"]
     assert not any(token in lowered for token in forbidden)
+
+
+def test_pyproject_has_explicit_setuptools_package_discovery():
+    import tomllib
+
+    data = tomllib.loads(Path("pyproject.toml").read_text())
+    assert data["build-system"]["build-backend"] == "setuptools.build_meta"
+    assert "setuptools>=68" in data["build-system"]["requires"]
+    finder = data["tool"]["setuptools"]["packages"]["find"]
+    assert finder["where"] == ["."]
+    for package in [
+        "adapters*",
+        "arenas*",
+        "blue*",
+        "core*",
+        "environment*",
+        "eval*",
+        "forks*",
+        "recon*",
+        "redteam*",
+        "reports*",
+        "simulation*",
+        "targets*",
+    ]:
+        assert package in finder["include"]
+
+
+def test_pyproject_excludes_non_package_folders_from_install():
+    import tomllib
+
+    data = tomllib.loads(Path("pyproject.toml").read_text())
+    excluded = set(data["tool"]["setuptools"]["packages"]["find"]["exclude"])
+    assert {"contracts*", "docs*", "tests*", "examples*", "scripts*"}.issubset(excluded)
