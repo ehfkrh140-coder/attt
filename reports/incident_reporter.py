@@ -1,0 +1,1 @@
+from reports.report_writer import write_safe_report
