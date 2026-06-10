@@ -1,8 +1,25 @@
 from __future__ import annotations
 
+from typing import Any
+
+from adapters.evm_readonly_client import EvmReadonlyClient
 from targets.protocol_catalog import MISSING_PROTOCOL_ROOT_ADDRESS, ProtocolCatalog
 from targets.protocol_resolvers.base import ProtocolResolutionRequest, ProtocolResolutionResult, ScopeReviewReport
 from targets.target_schema import TargetProtocolSpec
+
+AAVE_PROVIDER_CALLS = {
+    "Pool": "getPool()",
+    "PoolConfigurator": "getPoolConfigurator()",
+    "PriceOracle": "getPriceOracle()",
+    "ACLManager": "getACLManager()",
+}
+
+AAVE_CATEGORIES = {
+    "Pool": "lending_pool",
+    "PoolConfigurator": "admin_config",
+    "PriceOracle": "oracle",
+    "ACLManager": "admin_config",
+}
 
 
 class AaveV3Resolver:
@@ -31,27 +48,44 @@ class AaveV3Resolver:
         root = self._root_for(request)
         if root is None:
             return ProtocolResolutionResult(target=None, scope_review=review, error_code=MISSING_PROTOCOL_ROOT_ADDRESS)
+
+        notes: list[str] = ["evm_fork_twin_readonly_resolution", "executable_fork_drills_gated_until_adapter_ready"]
+        contracts: list[dict[str, Any]] = [{"name": "PoolAddressesProvider", "address": root, "category": "admin_config"}]
+        oracle_sources: list[str] = []
+        admin_roles = ["pool_admin", "risk_admin"]
+
+        client = readonly_client_or_arena if isinstance(readonly_client_or_arena, EvmReadonlyClient) else None
+        if client is None:
+            notes.append("readonly_client_unavailable_partial_resolution")
+        else:
+            for name, call_label in AAVE_PROVIDER_CALLS.items():
+                try:
+                    address = client.eth_call(root, call_label)
+                except Exception:
+                    address = None
+                if address:
+                    contracts.append({"name": f"AaveV3{name}", "address": str(address), "category": AAVE_CATEGORIES[name]})
+                    if name == "PriceOracle":
+                        oracle_sources.append(f"AaveV3{name}")
+                else:
+                    notes.append(f"unresolved_{name}")
+
+        if not oracle_sources and any(contract["category"] == "oracle" for contract in contracts):
+            oracle_sources = [contract["name"] for contract in contracts if contract["category"] == "oracle"]
+
         target = TargetProtocolSpec(
             protocol_name="aave_v3",
             runtime="evm",
             network_name=request.network,
             fork_block=None if request.fork_block == "latest" else request.fork_block,  # type: ignore[arg-type]
             target_mode="resolver",
-            deployment_sources=["local_evm_fork_twin"],
-            in_scope_contracts=[
-                {"name": "PoolAddressesProvider", "address": root, "category": "admin_config"},
-                {"name": "AaveV3Pool", "address": "resolved://aave-v3-pool", "category": "lending_pool"},
-                {"name": "AaveOracle", "address": "resolved://aave-v3-oracle", "category": "oracle"},
-            ],
-            critical_assets=["catalog_resolved_assets_pending_local_review"],
-            oracle_sources=["AaveOracle"],
+            deployment_sources=["local_evm_fork_twin_readonly"],
+            in_scope_contracts=contracts,
+            critical_assets=["aave_v3_assets_pending_scope_review"],
+            oracle_sources=oracle_sources,
             governance_contracts=["AaveGovernance"],
-            admin_roles=["pool_admin", "risk_admin"],
+            admin_roles=admin_roles,
             authorized_scope=False,
             scope_confirmed=False,
         )
-        return ProtocolResolutionResult(
-            target=target,
-            scope_review=review,
-            notes=["evm_fork_twin_readonly_resolution", "executable_fork_drills_gated_until_adapter_ready"],
-        )
+        return ProtocolResolutionResult(target=target, scope_review=review, notes=notes)

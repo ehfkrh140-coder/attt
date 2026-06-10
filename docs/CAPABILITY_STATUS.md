@@ -23,3 +23,9 @@
 | Haedal path | Gated / Not implemented | Sui state twin adapter is not implemented |
 | Public network execution | Not supported | Intentionally forbidden by the safety boundary |
 | Real private keys | Not supported | Intentionally forbidden by the safety boundary |
+| EVM Fork Twin read-only discovery scaffold | Supported | Validates local fork settings and performs safe read-only discovery |
+| Aave V3 root-address read-only resolver | Supported | Discovers Pool, PoolConfigurator, PriceOracle, and ACLManager when local read data is available |
+| Recon on read-only TargetProtocolSpec | Supported | Runs Recon on partial read-only EVM target specs |
+| live fork mempool defense | Unsupported / Not implemented | Future phase only |
+| real transaction execution | Unsupported / Not implemented | Intentionally blocked |
+| real Aave defense bot | Unsupported / Not implemented | Future phase only |

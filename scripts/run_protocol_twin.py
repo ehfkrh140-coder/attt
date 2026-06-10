@@ -18,6 +18,7 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument("--network", default="local")
     parser.add_argument("--fork-block", default=None)
     parser.add_argument("--root-address")
+    parser.add_argument("--local-rpc-url", default="http://127.0.0.1:8545")
     parser.add_argument("--target")
     return parser
 
@@ -54,6 +55,7 @@ def main() -> None:
                 network=args.network,
                 fork_block=args.fork_block,
                 root_address=args.root_address,
+                local_rpc_url=args.local_rpc_url,
             )
         )
     print(write_protocol_twin_summary(result))

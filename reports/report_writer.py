@@ -79,6 +79,19 @@ def write_protocol_twin_summary(result: Any) -> str:
             executable_drills_ran=result.executable_drills_ran,
             result_mode=result.status,
         )
+        extra_lines: list[str] = []
+        if getattr(result, "read_only_discovery", "no") != "no":
+            extra_lines.extend(
+                [
+                    f"- Read-only discovery: {result.read_only_discovery}",
+                    "- Execution gated: yes",
+                    f"- Discovered contracts: {', '.join(result.discovered_contracts) if result.discovered_contracts else 'partial'}",
+                    f"- Selected drill recommendations: {', '.join(result.selected_drills) if result.selected_drills else 'none'}",
+                ]
+            )
+        if extra_lines:
+            report = report.rstrip() + "\n" + "\n".join(extra_lines) + "\n"
+            SafetyGuard().assert_safe_report(report)
         return report
     SafetyGuard().assert_safe_report(report)
     return report

@@ -7,6 +7,7 @@ from core.errors import SafetyGuardError
 from core.safety import BLOCKED_BY_SAFETY_GUARD, SafetyGuard
 
 MISSING_LOCAL_FORK_TOOL = "MISSING_LOCAL_FORK_TOOL"
+LOCAL_FORK_UNAVAILABLE = "LOCAL_FORK_UNAVAILABLE"
 
 
 @dataclass(frozen=True)
@@ -48,6 +49,30 @@ class EvmForkController:
             self.safety_guard.assert_local_chain(config.chain_id)
         except SafetyGuardError as exc:
             raise SafetyGuardError(BLOCKED_BY_SAFETY_GUARD) from exc
+
+
+    def verify_existing_local_fork(self, config: EvmForkConfig, client: object | None = None) -> ForkStatus:
+        self.assert_safe_bot_rpc(config)
+        if client is None:
+            return ForkStatus(
+                available=False,
+                local_rpc_url=config.local_rpc_url,
+                chain_id=config.chain_id,
+                fork_block=config.fork_block,
+                tool="existing-local-fork",
+                reason=LOCAL_FORK_UNAVAILABLE,
+            )
+        chain_id = int(client.get_chain_id()) if hasattr(client, "get_chain_id") else config.chain_id
+        self.safety_guard.assert_local_chain(chain_id)
+        fork_block = getattr(client, "fork_block", config.fork_block)
+        return ForkStatus(
+            available=True,
+            local_rpc_url=config.local_rpc_url,
+            chain_id=chain_id,
+            fork_block=fork_block,
+            tool="existing-local-fork",
+            reason="local_fork_readonly_available",
+        )
 
     def verify_local_fork(self, config: EvmForkConfig) -> ForkStatus:
         self.assert_safe_bot_rpc(config)

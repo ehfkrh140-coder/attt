@@ -115,3 +115,9 @@ A beginner can verify the v0.1.0 MVP by checking:
 5. `python scripts/run_protocol_twin.py --protocol mock_lending` runs the MockArena simulation.
 6. `python scripts/run_protocol_twin.py --protocol aave_v3 --network ethereum` reports missing-root or gated/read-only status safely.
 7. `python scripts/run_protocol_twin.py --protocol haedal` reports unsupported Sui adapter status safely.
+
+## Phase 2A read-only EVM Fork Twin
+
+Phase 2A is a read-only onboarding step for EVM protocols. For Aave V3, you provide a local fork setting and a root address, and the resolver can discover PoolAddressesProvider, Pool, PoolConfigurator, PriceOracle, and ACLManager through safe read-only calls.
+
+Read-only means no transactions, no approvals, no transfers, no private keys, no executable fork Red drills, and no public mempool. The output lists planned Red drill recommendations as gated rather than executed.

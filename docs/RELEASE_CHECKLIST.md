@@ -30,3 +30,12 @@ Use this checklist before treating the MockArena MVP as release-ready.
 v0.1.0 is a MockArena MVP baseline. It supports local executable mock drills, Protocol Twin onboarding scaffold, External World Twin local emulation, scorecards, Twin Fidelity Score, safe summaries, tests, and CI visibility.
 
 It does not implement executable EVM fork Red drills, a real Aave adapter, a Sui State Twin adapter, or a real Haedal adapter.
+
+## Phase 2A read-only checks
+
+- [ ] EVM read-only client accepts local fork RPC settings only.
+- [ ] EVM read-only client exposes no send transaction methods.
+- [ ] Aave V3 root-address resolver builds a partial read-only `TargetProtocolSpec`.
+- [ ] Aave V3 read-only CLI output says executable drills did not run.
+- [ ] Aave V3 read-only CLI output says execution is gated.
+- [ ] Phase 2A smoke check appears in `python scripts/verify_mvp.py` output.

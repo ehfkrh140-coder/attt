@@ -72,6 +72,19 @@ def main() -> int:
         results,
     )
 
+    phase2a_result = run_auto_simulation_sync(
+        AutoSimulationRequest(protocol="aave_v3", network="ethereum", root_address="aave-root", fork_block="latest")
+    )
+    phase2a_summary = write_protocol_twin_summary(phase2a_result)
+    _check(
+        "Phase 2A read-only smoke",
+        phase2a_result.read_only_discovery == "yes"
+        and not phase2a_result.executable_drills_ran
+        and phase2a_result.protocol_twin_mode == "evm_fork_twin"
+        and _safe(phase2a_summary),
+        results,
+    )
+
     haedal_result = run_auto_simulation_sync(AutoSimulationRequest(protocol="haedal"))
     haedal_summary = write_protocol_twin_summary(haedal_result)
     _check(
@@ -97,7 +110,7 @@ def main() -> int:
         and "real Haedal adapter" in capability,
         results,
     )
-    _check("Safety report sanitizer", _safe(main_summary + "\n" + aave_summary + "\n" + haedal_summary), results)
+    _check("Safety report sanitizer", _safe(main_summary + "\n" + aave_summary + "\n" + phase2a_summary + "\n" + haedal_summary), results)
 
     overall = all(passed for _, passed in results)
     lines = ["MockArena MVP Verification"]

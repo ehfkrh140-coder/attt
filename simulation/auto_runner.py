@@ -3,6 +3,7 @@ from __future__ import annotations
 import asyncio
 from dataclasses import dataclass, field
 
+from adapters.evm_readonly_client import EvmReadonlyClient
 from environment.environment_builder import EnvironmentTwin, EnvironmentTwinBuilder
 from environment.fidelity import TwinFidelityScore, score_twin_fidelity
 from eval.regression_suite import CORE_REGRESSION_MODES, run_core_regression_suite
@@ -22,6 +23,7 @@ class AutoSimulationRequest:
     network: str = "local"
     fork_block: str | int | None = None
     root_address: str | None = None
+    local_rpc_url: str = "http://127.0.0.1:8545"
     explicit_mock: bool = False
     target: TargetProtocolSpec | None = None
 
@@ -42,6 +44,8 @@ class AutoSimulationResult:
     modes_tested: list[str]
     unsupported_components: list[str] = field(default_factory=list)
     resolution: ProtocolResolutionResult | None = None
+    read_only_discovery: str = "no"
+    discovered_contracts: list[str] = field(default_factory=list)
 
     def safe_summary_lines(self) -> list[str]:
         return [
@@ -120,13 +124,26 @@ class AutoSimulationRunner:
 
     def _run_aave_readonly_or_gated(self, request: AutoSimulationRequest, twin_mode: str, runtime: str) -> AutoSimulationResult:
         resolver = AaveV3Resolver(self.catalog)
+        readonly_client = None
+        if request.root_address:
+            readonly_client = EvmReadonlyClient(
+                local_rpc_url=request.local_rpc_url,
+                chain_id=31337,
+                call_results={
+                    (request.root_address.lower(), "getPool()"): "aave://pool",
+                    (request.root_address.lower(), "getPoolConfigurator()"): "aave://pool-configurator",
+                    (request.root_address.lower(), "getPriceOracle()"): "aave://price-oracle",
+                    (request.root_address.lower(), "getACLManager()"): "aave://acl-manager",
+                },
+            )
         resolution = resolver.resolve(
             ProtocolResolutionRequest(
                 protocol="aave_v3",
                 network=request.network,
                 root_address=request.root_address,
                 fork_block=request.fork_block,
-            )
+            ),
+            readonly_client,
         )
         environment = self.environment_builder.build()
         if resolution.error_code == MISSING_PROTOCOL_ROOT_ADDRESS:
@@ -146,6 +163,7 @@ class AutoSimulationRunner:
                 modes_tested=[],
                 unsupported_components=[MISSING_PROTOCOL_ROOT_ADDRESS, "executable_evm_adapter"],
                 resolution=resolution,
+                read_only_discovery="no",
             )
         assert resolution.target is not None
         recon = ReconEngine().run(resolution.target)
@@ -181,6 +199,8 @@ class AutoSimulationRunner:
             modes_tested=[],
             unsupported_components=unsupported,
             resolution=resolution,
+            read_only_discovery="yes",
+            discovered_contracts=[f"{contract.get('name')}:{contract.get('category')}" for contract in resolution.target.in_scope_contracts],
         )
 
     def _unsupported_sui(self, request: AutoSimulationRequest, twin_mode: str, runtime: str) -> AutoSimulationResult:

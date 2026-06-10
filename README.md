@@ -106,3 +106,9 @@ Expected behavior:
 - `haedal` reports Sui State Twin unsupported/gated status.
 - `verify_mvp.py` checks release readiness and prints `Overall: PASS` when local checks pass.
 - GitHub Actions should show a green `tests` workflow after push or pull request.
+
+## Phase 2A EVM Fork Twin read-only status
+
+Phase 2A adds read-only EVM Fork Twin discovery for Aave V3 root-address onboarding. It can validate a local fork RPC setting, read safe local-fork labels for PoolAddressesProvider, Pool, PoolConfigurator, PriceOracle, and ACLManager, build a partial `TargetProtocolSpec`, run Recon, and list planned Red drill recommendations as gated.
+
+Phase 2A still does not execute EVM fork Red drills, does not run a live fork mempool defender, does not send transactions, does not use private keys, and does not implement a real Aave defense bot. MockArena remains separate as the executable local regression path.
