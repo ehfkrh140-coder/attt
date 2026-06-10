@@ -3,6 +3,8 @@ from __future__ import annotations
 import shutil
 from dataclasses import dataclass
 
+from adapters.evm_json_rpc_transport import EvmJsonRpcError, EvmJsonRpcTransport
+from adapters.evm_readonly_client import EvmReadonlyClient
 from core.errors import SafetyGuardError
 from core.safety import BLOCKED_BY_SAFETY_GUARD, SafetyGuard
 
@@ -50,10 +52,19 @@ class EvmForkController:
         except SafetyGuardError as exc:
             raise SafetyGuardError(BLOCKED_BY_SAFETY_GUARD) from exc
 
-
     def verify_existing_local_fork(self, config: EvmForkConfig, client: object | None = None) -> ForkStatus:
         self.assert_safe_bot_rpc(config)
         if client is None:
+            client = EvmReadonlyClient(
+                local_rpc_url=config.local_rpc_url,
+                chain_id=config.chain_id,
+                transport=EvmJsonRpcTransport(config.local_rpc_url),
+                fork_block=config.fork_block,
+            )
+        try:
+            chain_id = int(client.get_chain_id()) if hasattr(client, "get_chain_id") else config.chain_id
+            self.safety_guard.assert_local_chain(chain_id)
+        except EvmJsonRpcError:
             return ForkStatus(
                 available=False,
                 local_rpc_url=config.local_rpc_url,
@@ -62,8 +73,8 @@ class EvmForkController:
                 tool="existing-local-fork",
                 reason=LOCAL_FORK_UNAVAILABLE,
             )
-        chain_id = int(client.get_chain_id()) if hasattr(client, "get_chain_id") else config.chain_id
-        self.safety_guard.assert_local_chain(chain_id)
+        except SafetyGuardError as exc:
+            raise SafetyGuardError(BLOCKED_BY_SAFETY_GUARD) from exc
         fork_block = getattr(client, "fork_block", config.fork_block)
         return ForkStatus(
             available=True,

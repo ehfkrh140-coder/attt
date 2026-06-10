@@ -73,11 +73,11 @@ def main() -> int:
     )
 
     phase2a_result = run_auto_simulation_sync(
-        AutoSimulationRequest(protocol="aave_v3", network="ethereum", root_address="aave-root", fork_block="latest")
+        AutoSimulationRequest(protocol="aave_v3", network="ethereum", root_address="aave-root", fork_block="latest", fixture_readonly=True)
     )
     phase2a_summary = write_protocol_twin_summary(phase2a_result)
     _check(
-        "Phase 2A read-only smoke",
+        "Phase 2A.1 read-only fixture smoke",
         phase2a_result.read_only_discovery == "yes"
         and not phase2a_result.executable_drills_ran
         and phase2a_result.protocol_twin_mode == "evm_fork_twin"

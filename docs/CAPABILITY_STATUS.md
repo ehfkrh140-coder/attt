@@ -29,3 +29,7 @@
 | live fork mempool defense | Unsupported / Not implemented | Future phase only |
 | real transaction execution | Unsupported / Not implemented | Intentionally blocked |
 | real Aave defense bot | Unsupported / Not implemented | Future phase only |
+| EVM local JSON-RPC read-only transport | Supported in Phase 2A.1 | Localhost-only reads: chain id, code, read-only calls, storage, and balance. |
+| Aave V3 local-fork read-only discovery | Partial / Gated | Requires a user-provided local fork and root address; executable drills remain gated. |
+| Executable Aave fork drills | Not implemented | Phase 2A.1 is read-only only. |
+| Local fork transaction sending | Not supported | Read-only transport blocks send, sign, wallet, debug, txpool, and local mutation RPC methods. |

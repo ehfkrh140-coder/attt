@@ -2,16 +2,17 @@ from __future__ import annotations
 
 from typing import Any
 
+from adapters.evm_call_builder import EvmCallBuilder
 from adapters.evm_readonly_client import EvmReadonlyClient
 from targets.protocol_catalog import MISSING_PROTOCOL_ROOT_ADDRESS, ProtocolCatalog
 from targets.protocol_resolvers.base import ProtocolResolutionRequest, ProtocolResolutionResult, ScopeReviewReport
 from targets.target_schema import TargetProtocolSpec
 
 AAVE_PROVIDER_CALLS = {
-    "Pool": "getPool()",
-    "PoolConfigurator": "getPoolConfigurator()",
-    "PriceOracle": "getPriceOracle()",
-    "ACLManager": "getACLManager()",
+    "Pool": EvmCallBuilder.aave_provider_get_pool,
+    "PoolConfigurator": EvmCallBuilder.aave_provider_get_pool_configurator,
+    "PriceOracle": EvmCallBuilder.aave_provider_get_price_oracle,
+    "ACLManager": EvmCallBuilder.aave_provider_get_acl_manager,
 }
 
 AAVE_CATEGORIES = {
@@ -43,6 +44,22 @@ class AaveV3Resolver:
             reason=None if root else MISSING_PROTOCOL_ROOT_ADDRESS,
         )
 
+    def _normalize_address(self, value: object) -> str | None:
+        if not isinstance(value, str):
+            return None
+        if value in {"", "0x"}:
+            return None
+        if value.startswith("0x") and len(value) == 66:
+            candidate = "0x" + value[-40:]
+            if int(candidate, 16) == 0:
+                return None
+            return candidate.lower()
+        if value.startswith("0x") and len(value) == 42:
+            if int(value, 16) == 0:
+                return None
+            return value.lower()
+        return value
+
     def resolve(self, request: ProtocolResolutionRequest, readonly_client_or_arena: object | None = None) -> ProtocolResolutionResult:
         review = self.scope_review(request)
         root = self._root_for(request)
@@ -58,9 +75,9 @@ class AaveV3Resolver:
         if client is None:
             notes.append("readonly_client_unavailable_partial_resolution")
         else:
-            for name, call_label in AAVE_PROVIDER_CALLS.items():
+            for name, call_factory in AAVE_PROVIDER_CALLS.items():
                 try:
-                    address = client.eth_call(root, call_label)
+                    address = self._normalize_address(client.eth_call(root, call_factory()))
                 except Exception:
                     address = None
                 if address:

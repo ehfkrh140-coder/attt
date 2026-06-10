@@ -112,3 +112,20 @@ Expected behavior:
 Phase 2A adds read-only EVM Fork Twin discovery for Aave V3 root-address onboarding. It can validate a local fork RPC setting, read safe local-fork labels for PoolAddressesProvider, Pool, PoolConfigurator, PriceOracle, and ACLManager, build a partial `TargetProtocolSpec`, run Recon, and list planned Red drill recommendations as gated.
 
 Phase 2A still does not execute EVM fork Red drills, does not run a live fork mempool defender, does not send transactions, does not use private keys, and does not implement a real Aave defense bot. MockArena remains separate as the executable local regression path.
+
+## Phase 2A.1 local EVM read-only transport
+
+Phase 2A.1 adds a real JSON-RPC read-only transport for a local EVM fork. Start your local fork using your own local tooling. Bots and resolvers only connect to `http://127.0.0.1:8545` or `http://localhost:8545`; they do not connect to upstream providers directly.
+
+For Aave V3 read-only discovery, provide the local fork URL and a PoolAddressesProvider/root address:
+
+```bash
+python scripts/run_protocol_twin.py --protocol aave_v3 --network ethereum --root-address <root-address> --local-rpc-url http://127.0.0.1:8545
+```
+
+Expected Phase 2A.1 behavior:
+
+- If no local fork is running, the CLI reports `LOCAL_FORK_UNAVAILABLE` safely.
+- If a local fork is running, the resolver performs read-only calls only and builds a partial `TargetProtocolSpec` for Recon.
+- Executable EVM fork Red drills remain gated and do not run.
+- MockArena remains a separate learning/regression mode and is never used as a silent fallback for an Aave V3 request.

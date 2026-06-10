@@ -65,6 +65,7 @@ def write_protocol_twin_summary(result: Any) -> str:
                 "- Environment Twin coverage: local external-world emulation configured",
                 f"- Unsupported components: {', '.join(result.unsupported_components) if result.unsupported_components else 'none'}",
                 f"- Executable drills ran: {'yes' if result.executable_drills_ran else 'no'}",
+                f"- Execution gated: {'no' if result.executable_drills_ran else 'yes'}",
                 "- Red drills are selected automatically when executable simulation is supported.",
             ]
         )

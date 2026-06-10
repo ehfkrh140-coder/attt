@@ -39,3 +39,12 @@ It does not implement executable EVM fork Red drills, a real Aave adapter, a Sui
 - [ ] Aave V3 read-only CLI output says executable drills did not run.
 - [ ] Aave V3 read-only CLI output says execution is gated.
 - [ ] Phase 2A smoke check appears in `python scripts/verify_mvp.py` output.
+
+## Phase 2A.1 read-only transport checks
+
+- [ ] `adapters/evm_json_rpc_transport.py` allows only read-only local JSON-RPC methods.
+- [ ] `EvmReadonlyClient` supports fixture mode and local transport mode.
+- [ ] Aave V3 resolver uses safe named calls, not report-visible raw calldata.
+- [ ] `python scripts/run_protocol_twin.py --protocol aave_v3 --network ethereum --root-address <root-address> --local-rpc-url http://127.0.0.1:8545` reports either read-only discovery or `LOCAL_FORK_UNAVAILABLE` safely.
+- [ ] Phase 2A.1 does not execute EVM Red drills or silently fall back to MockArena.
+- [ ] `python scripts/verify_mvp.py` includes the Phase 2A.1 fixture smoke check and does not require Anvil or Hardhat.

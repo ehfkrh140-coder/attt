@@ -56,7 +56,7 @@ def test_aave_v3_missing_root_returns_clear_error() -> None:
 
 def test_aave_v3_does_not_silently_fallback_to_mock() -> None:
     result = run_auto_simulation_sync(
-        AutoSimulationRequest(protocol="aave_v3", network="ethereum", root_address="aave-root", fork_block="latest")
+        AutoSimulationRequest(protocol="aave_v3", network="ethereum", root_address="aave-root", fork_block="latest", fixture_readonly=True)
     )
     assert result.protocol_twin_mode == "evm_fork_twin"
     assert result.runtime == "evm"
@@ -184,10 +184,12 @@ def test_run_protocol_twin_aave_readonly_or_gated_cli() -> None:
         "aave-root",
         "--fork-block",
         "latest",
+        "--local-rpc-url",
+        "http://127.0.0.1:1",
     )
     assert "Protocol Twin mode: evm_fork_twin" in output
     assert "Executable drills ran: no" in output
-    assert "evm_readonly_fork_twin_execution_gated" in output
+    assert "LOCAL_FORK_UNAVAILABLE" in output or "evm_readonly_fork_twin_execution_gated" in output
     assert "mockarena_executable" not in output
     SafetyGuard().assert_safe_report(output)
 

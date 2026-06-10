@@ -121,3 +121,15 @@ A beginner can verify the v0.1.0 MVP by checking:
 Phase 2A is a read-only onboarding step for EVM protocols. For Aave V3, you provide a local fork setting and a root address, and the resolver can discover PoolAddressesProvider, Pool, PoolConfigurator, PriceOracle, and ACLManager through safe read-only calls.
 
 Read-only means no transactions, no approvals, no transfers, no private keys, no executable fork Red drills, and no public mempool. The output lists planned Red drill recommendations as gated rather than executed.
+
+## Phase 2A.1: how local fork read-only discovery works
+
+Phase 2A.1 lets the project read from a local EVM fork using safe JSON-RPC reads. You must start the fork yourself with your own local tooling. The simulation bots only connect to `http://127.0.0.1:8545` or `http://localhost:8545`.
+
+Try Aave V3 read-only discovery like this after your local fork is running:
+
+```bash
+python scripts/run_protocol_twin.py --protocol aave_v3 --network ethereum --root-address <root-address> --local-rpc-url http://127.0.0.1:8545
+```
+
+If no local fork is running, the command should print `LOCAL_FORK_UNAVAILABLE`. That is a safe failure. Phase 2A.1 does not send transactions, does not use private keys, does not execute Aave Red drills, and does not silently switch to MockArena.

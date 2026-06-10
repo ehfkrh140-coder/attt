@@ -3,13 +3,16 @@ from __future__ import annotations
 import asyncio
 from dataclasses import dataclass, field
 
-from adapters.evm_readonly_client import EvmReadonlyClient
+from adapters.evm_json_rpc_transport import EvmJsonRpcError, EvmJsonRpcTransport
+from adapters.evm_readonly_client import EvmReadonlyClient, LOCAL_FORK_UNAVAILABLE
 from environment.environment_builder import EnvironmentTwin, EnvironmentTwinBuilder
 from environment.fidelity import TwinFidelityScore, score_twin_fidelity
 from eval.regression_suite import CORE_REGRESSION_MODES, run_core_regression_suite
 from eval.scoring import ScoreCard, default_safety_score, score_evaluation_quality, score_recon_report, score_red_drills
 from recon.recon_engine import ReconEngine, ReconReport
 from redteam.drill_planner import plan_drills
+from core.errors import SafetyGuardError
+from core.safety import BLOCKED_BY_SAFETY_GUARD
 from targets.protocol_catalog import MISSING_PROTOCOL_ROOT_ADDRESS, ProtocolCatalog, UNSUPPORTED_PROTOCOL_TWIN
 from targets.protocol_resolvers.aave_v3 import AaveV3Resolver
 from targets.protocol_resolvers.base import ProtocolResolutionRequest, ProtocolResolutionResult
@@ -26,6 +29,7 @@ class AutoSimulationRequest:
     local_rpc_url: str = "http://127.0.0.1:8545"
     explicit_mock: bool = False
     target: TargetProtocolSpec | None = None
+    fixture_readonly: bool = False
 
 
 @dataclass(frozen=True)
@@ -125,17 +129,30 @@ class AutoSimulationRunner:
     def _run_aave_readonly_or_gated(self, request: AutoSimulationRequest, twin_mode: str, runtime: str) -> AutoSimulationResult:
         resolver = AaveV3Resolver(self.catalog)
         readonly_client = None
-        if request.root_address:
+        if request.root_address and request.fixture_readonly:
             readonly_client = EvmReadonlyClient(
-                local_rpc_url=request.local_rpc_url,
+                local_rpc_url="mock://fixture",
                 chain_id=31337,
                 call_results={
-                    (request.root_address.lower(), "getPool()"): "aave://pool",
-                    (request.root_address.lower(), "getPoolConfigurator()"): "aave://pool-configurator",
-                    (request.root_address.lower(), "getPriceOracle()"): "aave://price-oracle",
-                    (request.root_address.lower(), "getACLManager()"): "aave://acl-manager",
+                    (request.root_address.lower(), "aave_provider_get_pool"): "aave://pool",
+                    (request.root_address.lower(), "aave_provider_get_pool_configurator"): "aave://pool-configurator",
+                    (request.root_address.lower(), "aave_provider_get_price_oracle"): "aave://price-oracle",
+                    (request.root_address.lower(), "aave_provider_get_acl_manager"): "aave://acl-manager",
                 },
             )
+        elif request.root_address:
+            try:
+                transport = EvmJsonRpcTransport(request.local_rpc_url)
+                readonly_client = EvmReadonlyClient(
+                    local_rpc_url=request.local_rpc_url,
+                    chain_id=31337,
+                    transport=transport,
+                )
+                readonly_client.get_chain_id()
+            except EvmJsonRpcError:
+                return self._aave_unavailable(request, twin_mode, runtime, LOCAL_FORK_UNAVAILABLE)
+            except SafetyGuardError:
+                return self._aave_unavailable(request, twin_mode, runtime, BLOCKED_BY_SAFETY_GUARD)
         resolution = resolver.resolve(
             ProtocolResolutionRequest(
                 protocol="aave_v3",
@@ -201,6 +218,33 @@ class AutoSimulationRunner:
             resolution=resolution,
             read_only_discovery="yes",
             discovered_contracts=[f"{contract.get('name')}:{contract.get('category')}" for contract in resolution.target.in_scope_contracts],
+        )
+
+    def _aave_unavailable(
+        self,
+        request: AutoSimulationRequest,
+        twin_mode: str,
+        runtime: str,
+        status: str,
+    ) -> AutoSimulationResult:
+        environment = self.environment_builder.build()
+        unsupported = [status, "executable_evm_adapter"]
+        fidelity = score_twin_fidelity(twin_mode, environment, unsupported)
+        return AutoSimulationResult(
+            status=status,
+            protocol="aave_v3",
+            protocol_twin_mode=twin_mode,
+            runtime=runtime,
+            environment_twin=environment,
+            twin_fidelity=fidelity,
+            scorecard=None,
+            recon_report=None,
+            selected_drills=[],
+            executable_drills_ran=False,
+            regression_case_count=0,
+            modes_tested=[],
+            unsupported_components=unsupported,
+            read_only_discovery="no",
         )
 
     def _unsupported_sui(self, request: AutoSimulationRequest, twin_mode: str, runtime: str) -> AutoSimulationResult:

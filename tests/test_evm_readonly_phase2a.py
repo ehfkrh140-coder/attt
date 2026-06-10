@@ -122,7 +122,7 @@ def test_aave_v3_resolver_rejects_public_rpc_client() -> None:
 
 def test_aave_v3_readonly_cli_does_not_execute_drills() -> None:
     output = subprocess.run(
-        [sys.executable, "scripts/run_protocol_twin.py", "--protocol", "aave_v3", "--network", "ethereum", "--root-address", "aave-root"],
+        [sys.executable, "scripts/run_protocol_twin.py", "--protocol", "aave_v3", "--network", "ethereum", "--root-address", "aave-root", "--local-rpc-url", "http://127.0.0.1:1"],
         check=True,
         capture_output=True,
         text=True,
@@ -132,7 +132,7 @@ def test_aave_v3_readonly_cli_does_not_execute_drills() -> None:
 
 def test_aave_v3_readonly_cli_does_not_fallback_to_mock() -> None:
     output = subprocess.run(
-        [sys.executable, "scripts/run_protocol_twin.py", "--protocol", "aave_v3", "--network", "ethereum", "--root-address", "aave-root"],
+        [sys.executable, "scripts/run_protocol_twin.py", "--protocol", "aave_v3", "--network", "ethereum", "--root-address", "aave-root", "--local-rpc-url", "http://127.0.0.1:1"],
         check=True,
         capture_output=True,
         text=True,
@@ -143,15 +143,14 @@ def test_aave_v3_readonly_cli_does_not_fallback_to_mock() -> None:
 
 def test_aave_v3_readonly_summary_lists_execution_gated() -> None:
     output = subprocess.run(
-        [sys.executable, "scripts/run_protocol_twin.py", "--protocol", "aave_v3", "--network", "ethereum", "--root-address", "aave-root"],
+        [sys.executable, "scripts/run_protocol_twin.py", "--protocol", "aave_v3", "--network", "ethereum", "--root-address", "aave-root", "--local-rpc-url", "http://127.0.0.1:1"],
         check=True,
         capture_output=True,
         text=True,
     ).stdout
-    assert "Read-only discovery: yes" in output
+    assert "LOCAL_FORK_UNAVAILABLE" in output
     assert "Execution gated: yes" in output
-    assert "Discovered contracts:" in output
-    assert "Selected drill recommendations:" in output
+    assert "Read-only discovery: yes" not in output
 
 
 def test_docs_mark_phase_2a_as_readonly() -> None:
@@ -163,4 +162,4 @@ def test_docs_mark_phase_2a_as_readonly() -> None:
 
 def test_verify_mvp_includes_phase_2a_readonly_smoke() -> None:
     output = subprocess.run([sys.executable, "scripts/verify_mvp.py"], check=True, capture_output=True, text=True).stdout
-    assert "Phase 2A read-only smoke: PASS" in output
+    assert "Phase 2A.1 read-only fixture smoke: PASS" in output
