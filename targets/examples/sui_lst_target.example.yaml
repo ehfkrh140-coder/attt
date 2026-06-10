@@ -1,0 +1,4 @@
+protocol_name: ExampleSuiLST
+runtime: sui_move
+network_name: sui-localnet
+scope_confirmed: false
