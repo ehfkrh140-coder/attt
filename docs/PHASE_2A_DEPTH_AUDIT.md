@@ -65,3 +65,9 @@ The manual smoke script is optional and is intentionally not run by CI.
 - No transaction sending.
 - No private keys or signing.
 - No direct Red/Blue public RPC connections.
+
+## Phase 2A.4 Read-only Aave Reserve Metadata
+
+Aave V3 read-only discovery now attempts to read reserve metadata from the local fork after the PoolAddressesProvider resolves the Pool. The resolver asks only safe named read calls for the reserve list and per-reserve data, then feeds the discovered reserve assets, aToken/debt-token relationships, and basic configuration flags into Recon.
+
+This may be full, partial, decode-unavailable, or unavailable depending on what the local fork returns. The result is still read-only: no transactions are sent, Red drills are recommendation-only, MockArena is not used as Aave fallback, and Phase 2B execution remains blocked.

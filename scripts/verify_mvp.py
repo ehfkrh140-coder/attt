@@ -208,6 +208,13 @@ def main() -> int:
         and _safe(phase2a2_check_output + "\n" + phase2a2_aave_output),
         results,
     )
+    _check(
+        "Phase 2A.4 reserve metadata smoke",
+        "Reserve discovery: fully_discovered" in phase2a2_aave_output
+        and "Reserve count: 2" in phase2a2_aave_output
+        and "Reserve symbols: USDC, WETH" in phase2a2_aave_output,
+        results,
+    )
 
     capability = (ROOT / "docs" / "CAPABILITY_STATUS.md").read_text()
     _check(

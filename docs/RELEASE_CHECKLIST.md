@@ -89,3 +89,9 @@ Phase 2B is still blocked and design-only. The new live-smoke support tools help
 - The preflight is expected to report `Phase 2B readiness: FAIL` until every review artifact is present.
 - Fork execution remains disabled by default, no transactions are sent, and executable EVM fork Red drills remain unsupported.
 - Do not include upstream endpoints, secrets, reusable payloads, or raw selectors in any preflight artifact.
+
+## Phase 2A.4 Read-only Aave Reserve Metadata
+
+Aave V3 read-only discovery now attempts to read reserve metadata from the local fork after the PoolAddressesProvider resolves the Pool. The resolver asks only safe named read calls for the reserve list and per-reserve data, then feeds the discovered reserve assets, aToken/debt-token relationships, and basic configuration flags into Recon.
+
+This may be full, partial, decode-unavailable, or unavailable depending on what the local fork returns. The result is still read-only: no transactions are sent, Red drills are recommendation-only, MockArena is not used as Aave fallback, and Phase 2B execution remains blocked.

@@ -22,6 +22,7 @@ class TargetProtocolSpec:
     dex_dependencies: list[str] = field(default_factory=list)
     governance_contracts: list[str] = field(default_factory=list)
     admin_roles: list[str] = field(default_factory=list)
+    protocol_metadata: dict[str, Any] = field(default_factory=dict)
     authorized_scope: bool = False
     scope_confirmed: bool = False
 

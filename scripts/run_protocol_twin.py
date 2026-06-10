@@ -40,6 +40,7 @@ def _target_from_yaml(path: Path) -> TargetProtocolSpec:
         dex_dependencies=data.get("dex_dependencies", []),
         governance_contracts=data.get("governance_contracts", []),
         admin_roles=data.get("admin_roles", []),
+        protocol_metadata=data.get("protocol_metadata", {}),
         authorized_scope=bool(data.get("authorized_scope", False)),
         scope_confirmed=bool(data.get("scope_confirmed", False)),
     )

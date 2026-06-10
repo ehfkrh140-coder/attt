@@ -25,7 +25,7 @@ class EvmReadonlyClient:
     code_by_address: dict[str, str] = field(default_factory=dict)
     storage: dict[tuple[str, str], str] = field(default_factory=dict)
     balances: dict[str, int] = field(default_factory=dict)
-    call_results: dict[tuple[str, str] | str, Any] = field(default_factory=dict)
+    call_results: dict[tuple[Any, ...] | str, Any] = field(default_factory=dict)
     fork_block: str | int | None = None
     transport: EvmJsonRpcTransport | None = None
 
@@ -50,8 +50,12 @@ class EvmReadonlyClient:
     def eth_call(self, to: str, call: EvmCall | str) -> Any:
         evm_call = self._coerce_call(call)
         if self.transport is not None:
-            return self.transport.call("eth_call", [{"to": to, "data": evm_call.selector}, "latest"])
+            return self.transport.call("eth_call", [{"to": to, "data": evm_call.data}, "latest"])
 
+        call_args = tuple(arg.lower() for arg in (evm_call.lookup_args or evm_call.encoded_args) if arg)
+        scoped_arg_key = (to.lower(), evm_call.safe_label, *call_args)
+        if scoped_arg_key in self.call_results:
+            return self.call_results[scoped_arg_key]
         scoped_key = (to.lower(), evm_call.safe_label)
         if scoped_key in self.call_results:
             return self.call_results[scoped_key]

@@ -41,6 +41,37 @@ def _fixture_client(root_address: str) -> EvmReadonlyClient:
             (root_address.lower(), "aave_provider_get_pool_configurator"): "aave://pool-configurator",
             (root_address.lower(), "aave_provider_get_price_oracle"): "aave://price-oracle",
             (root_address.lower(), "aave_provider_get_acl_manager"): "aave://acl-manager",
+            ("aave://pool", "aave_pool_get_reserves_list"): ["aave://usdc", "aave://weth"],
+            ("aave://pool", "aave_pool_get_reserve_data", "aave://usdc"): {
+                "asset": "aave://usdc",
+                "symbol": "USDC",
+                "a_token": "aave://ausdc",
+                "stable_debt_token": "aave://stable-debt-usdc",
+                "variable_debt_token": "aave://variable-debt-usdc",
+                "interest_rate_strategy": "aave://rate-strategy-usdc",
+                "decimals": 6,
+                "ltv_bps": 8000,
+                "liquidation_threshold_bps": 8500,
+                "borrowing_enabled": True,
+                "stable_borrow_enabled": False,
+                "active": True,
+                "frozen": False,
+            },
+            ("aave://pool", "aave_pool_get_reserve_data", "aave://weth"): {
+                "asset": "aave://weth",
+                "symbol": "WETH",
+                "a_token": "aave://aweth",
+                "stable_debt_token": "aave://stable-debt-weth",
+                "variable_debt_token": "aave://variable-debt-weth",
+                "interest_rate_strategy": "aave://rate-strategy-weth",
+                "decimals": 18,
+                "ltv_bps": 8250,
+                "liquidation_threshold_bps": 8600,
+                "borrowing_enabled": True,
+                "stable_borrow_enabled": False,
+                "active": True,
+                "frozen": False,
+            },
         },
     )
 
@@ -60,6 +91,7 @@ def _target_manifest(target: TargetProtocolSpec) -> dict[str, object]:
         "dex_dependencies": target.dex_dependencies,
         "governance_contracts": target.governance_contracts,
         "admin_roles": target.admin_roles,
+        "protocol_metadata": target.protocol_metadata,
         "authorized_scope": False,
         "scope_confirmed": False,
         "executable_drills_allowed": False,
@@ -166,6 +198,10 @@ def run_discovery(
     categories = sorted({str(contract.get("category")) for contract in resolution.target.in_scope_contracts})
     contracts = [f"{contract.get('name')}:{contract.get('category')}" for contract in resolution.target.in_scope_contracts]
     unresolved = sorted(note for note in resolution.notes if note.startswith("unresolved_"))
+    metadata = resolution.target.protocol_metadata.get("aave_v3", {})
+    reserves = metadata.get("reserves", []) if isinstance(metadata, dict) else []
+    reserve_symbols = [str(reserve.get("symbol", "unknown")) for reserve in reserves if isinstance(reserve, dict)]
+    reserve_status = str(metadata.get("reserve_discovery_status", "unavailable")) if isinstance(metadata, dict) else "unavailable"
     drills = [hypothesis.recommended_drill for hypothesis in recon.risk_hypotheses]
     exported = "no"
     if export_target:
@@ -180,6 +216,9 @@ def run_discovery(
             f"- Discovered contract categories: {', '.join(categories) if categories else 'none'}",
             f"- Discovered contracts: {', '.join(contracts) if contracts else 'none'}",
             f"- Unresolved calls: {', '.join(unresolved) if unresolved else 'none'}",
+            f"- Reserve discovery: {reserve_status}",
+            f"- Reserve count: {len(reserves)}",
+            f"- Reserve symbols: {', '.join(reserve_symbols) if reserve_symbols else 'none'}",
             f"- Selected drill recommendations: {', '.join(drills) if drills else 'none'}",
             f"- Recon risk hypotheses count: {len(recon.risk_hypotheses)}",
             "- Twin Fidelity Score: read-only-local-fork",

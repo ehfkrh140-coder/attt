@@ -11,6 +11,7 @@ def generate_invariants(attack_surface_map: dict[str, object], dependency_graph:
     admin_roles = [str(role) for role in attack_surface_map.get("admin_roles", [])]
     oracle_paths = dependency_graph.get("oracle_paths", [])
     liquidity_paths = dependency_graph.get("liquidity_paths", [])
+    reserve_paths = dependency_graph.get("reserve_paths", [])
 
     primary_vault = vault_targets[0] if vault_targets else str(attack_surface_map.get("protocol_name", "target"))
     primary_liquidity = liquidity_targets[0] if liquidity_targets else primary_vault
@@ -39,6 +40,19 @@ def generate_invariants(attack_surface_map: dict[str, object], dependency_graph:
                 check_method="liquidity_above_floor",
                 failure_condition="pool liquidity below configured floor while target remains unpaused",
                 severity_if_failed="high",
+            )
+        )
+    if reserve_paths and vault_targets:
+        invariants.append(
+            InvariantSpec(
+                invariant_id="INV-RESERVE-001",
+                target=primary_vault,
+                risk_type="reserve_configuration",
+                description="Reserve collateral and debt-token configuration should remain consistent with local risk limits.",
+                preconditions=["reserve metadata exists", "lending pool target exists"],
+                check_method="reserve_configuration_reviewed",
+                failure_condition="reserve configuration changes or missing debt metadata are not surfaced for defense review",
+                severity_if_failed="medium",
             )
         )
     if vault_targets:

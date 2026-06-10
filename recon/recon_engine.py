@@ -17,6 +17,10 @@ CATEGORY_KEYWORDS = {
     "governance": ("governance", "governor", "timelock"),
     "admin_config": ("admin", "config", "configurator", "owner"),
     "lending_pool": ("lending", "borrow", "loan"),
+    "reserve_asset": ("reserve", "asset", "token"),
+    "a_token": ("a_token", "atoken"),
+    "stable_debt_token": ("stable_debt",),
+    "variable_debt_token": ("variable_debt",),
     "lst": ("lst", "staking", "staked"),
     "keeper": ("keeper", "rebalance", "automation"),
 }
@@ -88,6 +92,7 @@ class ReconEngine:
             "runtime": runtime,
             "in_scope": True,
             "dependencies": list(contract.get("dependencies", [])),
+            "metadata": dict(contract.get("metadata", {})),
         }
 
     def _infer_category(self, name: str, address: str) -> str:
@@ -106,6 +111,8 @@ class ReconEngine:
         liquidity = self._by_category(contracts, "dex_pool")
         governance = self._by_category(contracts, "governance")
         circuit_breakers = self._by_category(contracts, "circuit_breaker")
+        reserve_assets = self._by_category(contracts, "reserve_asset")
+        debt_tokens = self._by_category(contracts, "stable_debt_token", "variable_debt_token")
         return {
             "protocol_name": target.protocol_name,
             "runtime": target.runtime,
@@ -116,12 +123,15 @@ class ReconEngine:
             "governance_entrypoints": governance or [self._external_dependency(name, "governance") for name in target.governance_contracts],
             "admin_roles": list(target.admin_roles),
             "vaults": vaults,
+            "reserve_assets": reserve_assets,
+            "debt_tokens": debt_tokens,
             "circuit_breakers": circuit_breakers,
             "external_dependencies": {
                 "oracle_sources": list(target.oracle_sources),
                 "dex_dependencies": list(target.dex_dependencies),
                 "governance_contracts": list(target.governance_contracts),
                 "critical_assets": list(target.critical_assets),
+                "protocol_metadata": dict(target.protocol_metadata),
             },
         }
 
@@ -134,6 +144,8 @@ class ReconEngine:
         vaults = self._by_category(contracts, "vault", "lending_pool", "lst")
         oracles = self._by_category(contracts, "oracle")
         dex_pools = self._by_category(contracts, "dex_pool")
+        reserve_assets = self._by_category(contracts, "reserve_asset")
+        debt_tokens = self._by_category(contracts, "stable_debt_token", "variable_debt_token")
         circuit_breakers = self._by_category(contracts, "circuit_breaker")
         governance = self._by_category(contracts, "governance")
         admin_configs = self._by_category(contracts, "admin_config")
@@ -143,8 +155,14 @@ class ReconEngine:
                 edges.append(self._edge(vault, oracle, "price_reference"))
             for pool in dex_pools:
                 edges.append(self._edge(vault, pool, "liquidity_dependency"))
+            for reserve in reserve_assets:
+                edges.append(self._edge(vault, reserve, "reserve_accounting_dependency"))
             for breaker in circuit_breakers:
                 edges.append(self._edge(breaker, vault, "pause_control"))
+        for debt_token in debt_tokens:
+            for reserve in reserve_assets:
+                if reserve["address"] in debt_token.get("dependencies", []):
+                    edges.append(self._edge(debt_token, reserve, "debt_token_underlying"))
         for gov in governance:
             for admin in admin_configs:
                 edges.append(self._edge(gov, admin, "governance_admin_control"))
@@ -174,6 +192,8 @@ class ReconEngine:
         vaults = self._by_category(contracts, "vault", "lending_pool", "lst")
         oracles = self._by_category(contracts, "oracle")
         dex_pools = self._by_category(contracts, "dex_pool")
+        reserve_assets = self._by_category(contracts, "reserve_asset")
+        debt_tokens = self._by_category(contracts, "stable_debt_token", "variable_debt_token")
         governance = self._by_category(contracts, "governance")
         admin_configs = self._by_category(contracts, "admin_config")
         circuit_breakers = self._by_category(contracts, "circuit_breaker")
@@ -192,6 +212,17 @@ class ReconEngine:
             {"from": vault["address"], "to": vault["address"], "label": f"{vault['name']} accounting -> share/NAV path"}
             for vault in vaults
         ]
+        reserve_paths = [
+            {"from": reserve["address"], "to": vault["address"], "label": f"{reserve['name']} reserve -> {vault['name']} collateral/debt path"}
+            for reserve in reserve_assets
+            for vault in vaults
+        ]
+        debt_paths = [
+            {"from": debt["address"], "to": reserve["address"], "label": f"{debt['name']} -> {reserve['name']} debt accounting path"}
+            for debt in debt_tokens
+            for reserve in reserve_assets
+            if reserve["address"] in debt.get("dependencies", [])
+        ]
         governance_paths = [
             {"from": gov["address"], "to": admin["address"], "label": f"{gov['name']} -> {admin['name']} admin config path"}
             for gov in governance
@@ -206,7 +237,7 @@ class ReconEngine:
             for breaker in circuit_breakers
             for vault in vaults
         ]
-        critical_paths = oracle_paths + liquidity_paths + governance_paths + circuit_breaker_paths
+        critical_paths = oracle_paths + liquidity_paths + reserve_paths + debt_paths + governance_paths + circuit_breaker_paths
         if oracle_paths and liquidity_paths and vault_paths:
             critical_paths.append({"from": "composed_dependencies", "to": vaults[0]["address"], "label": "oracle + liquidity + vault composed risk path"})
         return {
@@ -218,6 +249,9 @@ class ReconEngine:
             "oracle_paths": oracle_paths,
             "liquidity_paths": liquidity_paths,
             "vault_paths": vault_paths,
+            "reserve_paths": reserve_paths,
+            "debt_paths": debt_paths,
+            "reserve_assets": [contract["name"] for contract in reserve_assets],
             "governance_paths": governance_paths,
             "admin_paths": admin_paths,
             "circuit_breaker_paths": circuit_breaker_paths,

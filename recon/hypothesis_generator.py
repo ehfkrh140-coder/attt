@@ -7,6 +7,7 @@ RED_DRILL_BY_RISK = {
     "liquidity_pressure": "ExecutableLiquidityShockDrill",
     "vault_accounting": "ExecutableVaultAccountingDrill",
     "multi_stage_composition": "ExecutableMultiStageDrill",
+    "reserve_configuration": "ExecutableLiquidationStressDrill",
     "governance_risk": "ExecutableGovernancePayloadDrill",
     "admin_role_risk": "ExecutableAdminRoleChangeDrill",
 }
@@ -16,6 +17,7 @@ BLUE_CONTROL_BY_RISK = {
     "liquidity_pressure": "pause_withdrawals",
     "vault_accounting": "pause_vault",
     "multi_stage_composition": "correlate_oracle_liquidity_and_vault_signals",
+    "reserve_configuration": "review_reserve_configuration_and_debt_tokens",
     "governance_risk": "governance_review",
     "admin_role_risk": "admin_review",
 }
@@ -25,6 +27,7 @@ DEPENDENCY_PATH_BY_RISK = {
     "liquidity_pressure": "dex liquidity -> vault accounting or withdrawal path",
     "vault_accounting": "vault accounting -> share/NAV consistency",
     "multi_stage_composition": "oracle + liquidity + vault path -> composed invariant pressure",
+    "reserve_configuration": "reserve metadata -> collateral/debt accounting path",
     "governance_risk": "governance -> admin config",
     "admin_role_risk": "admin role -> privileged protocol control",
 }
@@ -37,6 +40,7 @@ def affected_targets_for_invariant(invariant: InvariantSpec, dependency_graph: d
         "liquidity_pressure": "liquidity_paths",
         "vault_accounting": "vault_paths",
         "multi_stage_composition": "critical_paths",
+        "reserve_configuration": "reserve_paths",
         "governance_risk": "governance_paths",
         "admin_role_risk": "admin_paths",
     }.get(risk_type)

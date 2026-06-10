@@ -50,6 +50,8 @@ class AutoSimulationResult:
     resolution: ProtocolResolutionResult | None = None
     read_only_discovery: str = "no"
     discovered_contracts: list[str] = field(default_factory=list)
+    discovered_reserves: list[str] = field(default_factory=list)
+    reserve_discovery: str = "unavailable"
 
     def safe_summary_lines(self) -> list[str]:
         return [
@@ -138,6 +140,9 @@ class AutoSimulationRunner:
                     (request.root_address.lower(), "aave_provider_get_pool_configurator"): "aave://pool-configurator",
                     (request.root_address.lower(), "aave_provider_get_price_oracle"): "aave://price-oracle",
                     (request.root_address.lower(), "aave_provider_get_acl_manager"): "aave://acl-manager",
+                    ("aave://pool", "aave_pool_get_reserves_list"): ["aave://usdc", "aave://weth"],
+                    ("aave://pool", "aave_pool_get_reserve_data", "aave://usdc"): {"symbol": "USDC", "a_token": "aave://ausdc", "variable_debt_token": "aave://variable-debt-usdc", "decimals": 6, "ltv_bps": 8000, "liquidation_threshold_bps": 8500, "borrowing_enabled": True, "active": True, "frozen": False},
+                    ("aave://pool", "aave_pool_get_reserve_data", "aave://weth"): {"symbol": "WETH", "a_token": "aave://aweth", "variable_debt_token": "aave://variable-debt-weth", "decimals": 18, "ltv_bps": 8250, "liquidation_threshold_bps": 8600, "borrowing_enabled": True, "active": True, "frozen": False},
                 },
             )
         elif request.root_address:
@@ -218,6 +223,8 @@ class AutoSimulationRunner:
             resolution=resolution,
             read_only_discovery=resolution.discovery_status,
             discovered_contracts=[f"{contract.get('name')}:{contract.get('category')}" for contract in resolution.target.in_scope_contracts],
+            discovered_reserves=[str(reserve.get("symbol", "unknown")) for reserve in resolution.target.protocol_metadata.get("aave_v3", {}).get("reserves", [])],
+            reserve_discovery=str(resolution.target.protocol_metadata.get("aave_v3", {}).get("reserve_discovery_status", "unavailable")),
         )
 
     def _aave_unavailable(

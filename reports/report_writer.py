@@ -97,6 +97,8 @@ def write_protocol_twin_summary(result: Any) -> str:
                     f"- Read-only discovery: {_display_readonly_status(result.read_only_discovery)}",
                     "- Execution gated: yes",
                     f"- Discovered contracts: {', '.join(result.discovered_contracts) if result.discovered_contracts else 'partial'}",
+                    f"- Reserve discovery: {getattr(result, 'reserve_discovery', 'unavailable')}",
+                    f"- Discovered reserves: {', '.join(getattr(result, 'discovered_reserves', [])) if getattr(result, 'discovered_reserves', []) else 'none'}",
                     f"- Selected drill recommendations: {', '.join(result.selected_drills) if result.selected_drills else 'none'}",
                     f"- Recon risk hypotheses count: {len(getattr(result.recon_report, 'risk_hypotheses', [])) if getattr(result, 'recon_report', None) else 0}",
                 ]
