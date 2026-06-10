@@ -1,0 +1,73 @@
+# Phase 2A Depth Audit
+
+Phase 2A is a read-only EVM Fork Twin onboarding phase. It is not executable fork drill support and it is not a real Aave defense bot.
+
+## Fixture-backed CI tests
+
+These checks run in CI without a live local fork:
+
+- `tests/test_evm_json_rpc_phase2a1.py` verifies the read-only transport allowlist, public RPC blocking, safe call labels, and safe reports using mocked requesters.
+- `tests/test_evm_readonly_phase2a.py` verifies the read-only client and Aave resolver using fixture responses.
+- `tests/test_phase2a2_local_fork_smoke.py` verifies CLI unavailable/blocked behavior without a live fork.
+- `tests/test_phase2a_readonly_sprint.py` verifies discovery status, target export, no send/sign API, no MockArena fallback, and no selector leakage using fixture-backed discovery.
+- `scripts/verify_mvp.py` runs fixture-backed Aave read-only smoke checks and does not require Anvil, Hardhat, Sui, or external network access.
+
+## Tests that require no live fork
+
+All default tests in `pytest -q` require no live fork. They prove safety and plumbing behavior but do not prove that a user's local fork is configured correctly.
+
+## Optional live local fork manual commands
+
+Run these manually only after starting a local fork yourself with your own local tooling and upstream provider outside this project:
+
+```bash
+python scripts/check_local_evm_fork.py --local-rpc-url http://127.0.0.1:8545
+python scripts/aave_readonly_discovery.py --root-address <root-address> --local-rpc-url http://127.0.0.1:8545
+python scripts/manual_live_fork_smoke.py --local-rpc-url http://127.0.0.1:8545 --root-address <root-address>
+```
+
+The manual smoke script is optional and is intentionally not run by CI.
+
+## What has been proven
+
+- Transport blocks forbidden methods.
+- Public RPC URLs are rejected before a request is sent.
+- The read-only client has no send methods.
+- Aave resolver can process fixture read responses.
+- CLI fails safely when no local fork is available.
+- Reports and summaries avoid raw calldata and Aave selectors.
+- Read-only Aave target export keeps scope unconfirmed and executable drills disabled.
+
+## What has not been proven
+
+- Real Anvil/Hardhat fork connectivity in the user's environment.
+- Real Aave PoolAddressesProvider ABI compatibility.
+- Real `eth_call` return decoding against a live fork.
+- Real Aave dependency graph completeness.
+- Executable fork drill safety.
+- Live fork mempool defense.
+
+## What must be proven before Phase 2B
+
+- A user has run the optional live local fork smoke against a real local fork.
+- Read-only Aave discovery works against that real local fork.
+- Aave root address and discovered contracts are reviewed in a user-provided target manifest.
+- Dependency graph review is complete.
+- SafetyGuard has a fork-execution mode design.
+- Snapshot and rollback behavior is specified for local fork execution.
+- Initial fork execution drill design is harmless, value zero, and local-only.
+- Defense action design is mock/local circuit breaker only.
+
+## Non-goals for Phase 2A
+
+- No executable EVM fork Red drills.
+- No public mempool logic.
+- No transaction sending.
+- No private keys or signing.
+- No direct Red/Blue public RPC connections.
+
+## Phase 2A.4 Read-only Aave Reserve Metadata
+
+Aave V3 read-only discovery now attempts to read reserve metadata from the local fork after the PoolAddressesProvider resolves the Pool. The resolver asks only safe named read calls for the reserve list and per-reserve data, then feeds the discovered reserve assets, aToken/debt-token relationships, and basic configuration flags into Recon.
+
+This may be full, partial, decode-unavailable, or unavailable depending on what the local fork returns. The result is still read-only: no transactions are sent, Red drills are recommendation-only, MockArena is not used as Aave fallback, and Phase 2B execution remains blocked.
