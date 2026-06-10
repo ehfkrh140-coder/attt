@@ -1,0 +1,4 @@
+protocol_name: ExampleVault
+runtime: evm
+network_name: local-fork
+scope_confirmed: false
