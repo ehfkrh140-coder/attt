@@ -25,6 +25,21 @@ def test_phase2a_depth_audit_lists_fixture_vs_live_limits() -> None:
     assert "Real Anvil/Hardhat fork connectivity" in text
 
 
+def test_docs_do_not_contain_github_conflict_urls() -> None:
+    docs = [
+        "README.md",
+        "docs/BEGINNER_RUNBOOK.md",
+        "docs/CAPABILITY_STATUS.md",
+        "docs/PHASE_2A_DEPTH_AUDIT.md",
+        "docs/PHASE_2B_PREFLIGHT.md",
+        "docs/PHASE_2B_READINESS_CHECKLIST.md",
+        "docs/RELEASE_CHECKLIST.md",
+    ]
+    combined = "\n".join(open(path).read() for path in docs)
+    assert "/pull/" not in combined or "/conflict" not in combined
+    assert "conflict?" not in combined
+
+
 def test_manual_live_fork_smoke_script_exists() -> None:
     assert open("scripts/manual_live_fork_smoke.py").read()
 
