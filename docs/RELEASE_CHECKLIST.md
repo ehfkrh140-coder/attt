@@ -63,3 +63,11 @@ It does not implement executable EVM fork Red drills, a real Aave adapter, a Sui
 - [ ] Optional target export keeps `authorized_scope=false` and `scope_confirmed=false`.
 - [ ] Reports contain selected Red drill recommendations as gated, not executed.
 - [ ] Phase 2B remains documented as future work.
+
+## Phase 2A QA checks
+
+- [ ] `docs/PHASE_2A_DEPTH_AUDIT.md` distinguishes fixture-backed CI from optional live local fork testing.
+- [ ] `docs/PHASE_2B_READINESS_CHECKLIST.md` exists and blocks executable fork work until prerequisites are complete.
+- [ ] `scripts/manual_live_fork_smoke.py` is optional and not run by CI.
+- [ ] Manual smoke output remains read-only and safe.
+- [ ] Reports do not contain Aave selectors or raw calldata.

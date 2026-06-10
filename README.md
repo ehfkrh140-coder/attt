@@ -160,3 +160,15 @@ Phase 2A is the safe local-fork discovery workflow for EVM protocols. Start a lo
 6. Red drills are not executed on Aave.
 7. MockArena remains separate and is not used as an Aave fallback.
 8. Phase 2B is future work for mediated local fork execution.
+
+## Phase 2A QA: fixture vs optional live local fork
+
+Default CI is fixture-backed and proves read-only safety, resolver plumbing, safe failure behavior, and report sanitization. It does not prove that your machine has a working local fork or that a specific Aave deployment is fully decoded.
+
+Optional manual live local fork smoke:
+
+```bash
+python scripts/manual_live_fork_smoke.py --local-rpc-url http://127.0.0.1:8545 --root-address <root-address>
+```
+
+This manual command is not run in CI. It still sends no transactions, uses no signing keys, executes no Aave Red drills, and does not enable Phase 2B. See `docs/PHASE_2A_DEPTH_AUDIT.md` and `docs/PHASE_2B_READINESS_CHECKLIST.md` before planning executable fork work.

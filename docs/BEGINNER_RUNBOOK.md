@@ -165,3 +165,15 @@ Use Phase 2A when you want to inspect a real EVM protocol through a local fork w
 7. Red drills are not executed on Aave.
 8. MockArena remains separate and is not used as an Aave fallback.
 9. Phase 2B is future work for mediated local fork execution.
+
+## Phase 2A QA: fixture tests vs manual live fork
+
+The GitHub Actions tests are fixture-backed. That means they prove the read-only code path and safety checks, but they do not prove your own local fork is running correctly.
+
+If you have started a local fork yourself, you may run the optional manual smoke:
+
+```bash
+python scripts/manual_live_fork_smoke.py --local-rpc-url http://127.0.0.1:8545 --root-address <root-address>
+```
+
+This optional command is not run in CI. It sends no transactions, uses no signing keys, and does not execute Red drills on Aave. Phase 2B is future work and requires the checklist in `docs/PHASE_2B_READINESS_CHECKLIST.md`.

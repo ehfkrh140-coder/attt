@@ -38,3 +38,6 @@
 | Live local fork transactions | Not supported | Smoke tooling is read-only and keeps execution gated. |
 | Safe read-only target export | Supported in Phase 2A | Exports unconfirmed Aave read-only TargetProtocolSpec manifests without executable scope. |
 | Phase 2B executable fork drills | Future work | Not implemented in Phase 2A; local fork execution remains gated. |
+| Phase 2A depth audit | Supported | Documents fixture-backed CI, optional live local fork manual checks, and remaining limits. |
+| Manual live local fork smoke | Optional / Manual | User-run localhost-only read-only smoke; not run by CI. |
+| Phase 2B readiness checklist | Supported | Blocks executable fork work until live read-only and safety prerequisites are reviewed. |

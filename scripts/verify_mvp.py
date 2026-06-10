@@ -100,11 +100,17 @@ def main() -> int:
         ROOT / "docs" / "BEGINNER_RUNBOOK.md",
         ROOT / "docs" / "CAPABILITY_STATUS.md",
         ROOT / "docs" / "RELEASE_CHECKLIST.md",
+        ROOT / "docs" / "PHASE_2A_DEPTH_AUDIT.md",
+        ROOT / "docs" / "PHASE_2B_READINESS_CHECKLIST.md",
     ]
     _check("Docs present", all(path.exists() for path in docs), results)
     _check("GitHub Actions workflow present", (ROOT / ".github" / "workflows" / "test.yml").exists(), results)
 
-    phase2a2_scripts = [ROOT / "scripts" / "check_local_evm_fork.py", ROOT / "scripts" / "aave_readonly_discovery.py"]
+    phase2a2_scripts = [
+        ROOT / "scripts" / "check_local_evm_fork.py",
+        ROOT / "scripts" / "aave_readonly_discovery.py",
+        ROOT / "scripts" / "manual_live_fork_smoke.py",
+    ]
     _check("Phase 2A.2 smoke scripts present", all(path.exists() for path in phase2a2_scripts), results)
     script_text = "\n".join(path.read_text() for path in phase2a2_scripts if path.exists())
     _check(
@@ -117,6 +123,16 @@ def main() -> int:
     )
     phase2a2_check_output = run_check("http://127.0.0.1:1")
     phase2a2_aave_output = run_discovery(root_address="aave-root", fixture_readonly=True)
+    depth_audit = (ROOT / "docs" / "PHASE_2A_DEPTH_AUDIT.md").read_text()
+    phase2b_checklist = (ROOT / "docs" / "PHASE_2B_READINESS_CHECKLIST.md").read_text()
+    _check(
+        "Phase 2A QA audit docs",
+        "Fixture-backed CI tests" in depth_audit
+        and "Optional live local fork manual commands" in depth_audit
+        and "What has not been proven" in depth_audit
+        and "Phase 2B must not begin" in phase2b_checklist,
+        results,
+    )
     _check(
         "Phase 2A.2 safe output checks",
         "LOCAL_FORK_UNAVAILABLE" in phase2a2_check_output
