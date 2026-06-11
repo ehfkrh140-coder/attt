@@ -68,3 +68,133 @@ The default reserve limit is 8. A user may request a different limit, but the re
 - Target manifest review: parses generated manifests and checks read-only flags, but does not confirm scope automatically.
 - Dependency graph review: generated from Recon output and reserve metadata; it is a review candidate, not execution permission.
 - Phase 2B execution: still blocked and disabled. No transactions are sent and no Aave Red drills run.
+
+## Phase 2A.5-R Recon / Red / Blue Extreme Capability Reframe
+
+Phase 2A.5-R reframes Recon, Red Team, and Blue Team capabilities without
+opening Phase 2B. It documents that public-world side effects are forbidden while
+sealed-lab equivalents may be modeled only after explicit gates.
+
+Capability | Status | Notes
+--- | --- | ---
+Recon capability boundary | Supported / Policy | Recon is a first-class adversarial discovery engine, not a report generator
+Red Team capability boundary | Supported / Policy | Red is a sealed-lab adversarial executor, not a story generator
+Blue Team capability boundary | Supported / Policy | Blue is blind but can model strong local defensive actions
+ForbiddenOutsideModeledInsideMatrix | Supported / Policy | Forbidden public capabilities are modeled internally only after gates
+No-Fake-Scenario standard | Supported / Policy | Narrative-only findings, drills, defenses, and verdicts are insufficient
+Phase 2B execution | Blocked | The reframe does not enable executable fork drills
+
+## Permanent forbidden capabilities
+
+The following remain permanently forbidden outside the sealed lab:
+
+- public network active probing
+- public network transaction broadcast
+- public RPC through Red/Blue execution
+- live victim targeting
+- public mempool observation for attack discovery
+- real private key usage
+- real fund movement
+- out-of-scope contract/program exploration
+- replayable exploit package generation
+- raw reusable calldata / transaction bundle output
+- public-network portable exploit artifacts
+
+These are forbidden outside and may only be modeled inside a sealed local lab
+after the relevant future gates are approved.
+
+## Current Phase 2A limitations
+
+Phase 2A remains read-only/review-only for EVM fork paths. It supports MockArena
+execution, read-only local fork discovery, evidence pack generation, manifest
+review, dependency review, preflight review, and review packets. It does not
+support executable EVM fork Red drills, real transaction sending, public RPC
+Red/Blue execution, private keys, real fund movement, live Aave bots, or public
+mempool behavior.
+
+## Future sealed-local capabilities after explicit gates
+
+Future sealed-local capabilities may include snapshot/revert-controlled active
+probing, local-only transaction simulation, local-only signer use, local-only
+impersonation, synthetic accounts/mints, local ordering pressure, private
+orderflow simulation, and local emergency defense actions. They require a
+separate approved Phase 2B or later PR and remain blocked in this PR.
+
+## Phase 2A.6 Live Fork Evidence Quality & ABI Compatibility Review
+
+Phase 2A.6 reviews the quality of Phase 2A.5 evidence artifacts. It scores or
+triages evidence completeness, ABI/decode quality, reserve coverage, dependency
+review quality, target manifest review quality, and Phase 2B blockers.
+
+Capability | Status | Notes
+--- | --- | ---
+Evidence quality report | Supported / Review-only | Produces sanitized markdown findings
+ABI compatibility report | Supported / Review-only | Records decode success and unavailable fields
+Reserve coverage report | Supported / Review-only | Reports reserve count, truncation, and unresolved fields
+Discovery triage report | Supported / Review-only | Converts gaps into review items
+Phase 2B blocker summary | Supported / Review-only | Keeps blockers visible and cannot approve execution
+Execution-ready verdict | Unsupported | No Phase 2A.6 verdict grants execution permission
+
+## Phase 2A.6-H1 Source Format Integrity & Hidden Unicode Hygiene
+
+Phase 2A.6-H1 hardens source and documentation readability. It rejects hidden
+bidirectional Unicode controls in critical docs/source, keeps generated reports
+readable, and does not change runtime permissions.
+
+Capability | Status | Notes
+--- | --- | ---
+Critical source/doc line-count checks | Supported | Prevents unreadable single-line blobs
+Hidden bidi-control scan | Supported | Does not ban normal Korean text or ordinary Unicode punctuation
+Report heading checks | Supported | Keeps generated review reports readable
+Phase 2B execution | Blocked | Hygiene checks do not enable execution
+
+## Phase 2A.6-Live Review capability status
+
+Phase 2A.6-Live Review consumes user-provided localhost artifacts only. It does
+not run discovery automatically, does not connect to public RPC, and does not
+send transactions.
+
+Capability | Status | Notes
+--- | --- | ---
+Live artifact bundle convention | Supported / Review-only | Local file references only
+Bundle manifest review | Supported / Review-only | Reads manifest paths, does not run discovery
+Artifact directory review | Supported / Review-only | Classifies conventional filenames
+Fixture-demo bundle review | Supported / CI-only | Deterministic, not execution-ready
+Live-local read-only classification | Supported / Review-only | Requires localhost/read-only indicators
+Unsafe artifact blocking | Supported | Unsafe contents are not printed into reports
+Evidence quality integration | Supported / Review-only | Feeds safe inputs into existing Phase 2A.6 reviewer
+Phase 2B execution | Blocked | No executable fork drills are enabled
+
+## Phase 2A.6-RP review packet governance status
+
+Phase 2A.6-RP adds a required Codex PR review packet protocol and verifier. It
+is governance and CI-hardening only. It does not change runtime permissions.
+
+Capability | Status | Notes
+--- | --- | ---
+Codex PR Review Packet protocol | Supported | Falsifiable review guide required for future PRs
+Review packet verifier | Supported | Local packet and local GitHub event payload modes
+PR template review checklist | Supported | Compact review packet fields in PR body
+Reviewer focus map | Supported | Changed files prioritized for inspection
+Claims-to-verify section | Supported | Packet states what reviewers verify independently
+Phase 2B execution | Blocked | Review governance does not enable execution
+
+Review packets reduce reviewer burden but do not replace independent review,
+GitHub diff inspection, CI logs, or direct source inspection.
+
+## Phase 2A.6-OP operator guide and sample bundle status
+
+Phase 2A.6-OP adds operator guidance, a manual review checklist, and deterministic
+safe sample artifacts. It is review-only and does not change execution permissions.
+
+Capability | Status | Notes
+--- | --- | ---
+Phase 2A.6 operator guide | Supported / Review-only | Localhost artifact preparation workflow
+Manual review checklist | Supported / Review-only | Reviewer sign-off without execution approval
+Deterministic safe sample bundle | Supported / CI-safe | Sample files only, not real user evidence
+Sample bundle manifest review | Supported / Review-only | Uses the Phase 2A.6 live artifact bundle reviewer when present
+Current PR review packet | Supported | Verified by the review packet verifier when present
+Phase 2B execution | Blocked | Operator guidance does not enable execution
+
+The sample bundle does not prove live local fork ABI compatibility and does not
+claim Phase 2B readiness.
