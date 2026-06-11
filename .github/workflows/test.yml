@@ -22,3 +22,12 @@ jobs:
         run: python main.py
       - name: Run MVP verifier
         run: python scripts/verify_mvp.py
+      - name: Verify Codex review packet
+        run: python scripts/verify_codex_review_packet.py --packet docs/reviews/PHASE_2A6_RP_REVIEW_PACKET.md
+      - name: Verify Phase 2A.6 OP review packet
+        run: python scripts/verify_codex_review_packet.py --packet docs/reviews/PHASE_2A6_OP_REVIEW_PACKET.md
+      - name: Review Phase 2A.6 sample bundle
+        run: >-
+          python scripts/review_live_artifact_bundle.py
+          --artifact-dir docs/examples/phase2a6_live_bundle
+          --output /tmp/phase2a6_example_bundle_review.md

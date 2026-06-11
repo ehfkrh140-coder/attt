@@ -1,0 +1,6 @@
+artifacts:
+  evidence_pack: aave_v3_evidence_pack.md
+  target_manifest: aave_v3_readonly.yaml
+  dependency_graph_review: dependency_graph_review.md
+  manual_live_smoke: manual_live_fork_smoke_result.md
+  phase2b_preflight: phase2b_preflight.md
