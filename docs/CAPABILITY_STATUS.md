@@ -68,3 +68,20 @@ The default reserve limit is 8. A user may request a different limit, but the re
 - Target manifest review: parses generated manifests and checks read-only flags, but does not confirm scope automatically.
 - Dependency graph review: generated from Recon output and reserve metadata; it is a review candidate, not execution permission.
 - Phase 2B execution: still blocked and disabled. No transactions are sent and no Aave Red drills run.
+
+## Phase 2A.6-OP operator guide and sample bundle status
+
+Phase 2A.6-OP adds operator guidance, a manual review checklist, and deterministic
+safe sample artifacts. It is review-only and does not change execution permissions.
+
+Capability | Status | Notes
+--- | --- | ---
+Phase 2A.6 operator guide | Supported / Review-only | Localhost artifact preparation workflow
+Manual review checklist | Supported / Review-only | Reviewer sign-off without execution approval
+Deterministic safe sample bundle | Supported / CI-safe | Sample files only, not real user evidence
+Sample bundle manifest review | Supported / Review-only | Uses the Phase 2A.6 live artifact bundle reviewer when present
+Current PR review packet | Supported | Verified by the review packet verifier when present
+Phase 2B execution | Blocked | Operator guidance does not enable execution
+
+The sample bundle does not prove live local fork ABI compatibility and does not
+claim Phase 2B readiness.

@@ -50,3 +50,22 @@ If any item is incomplete, stay in read-only Phase 2A.
 - [ ] Preflight output reviewed as review-ready only, not execution-enabled.
 - [ ] Fork execution mode remains disabled.
 - [ ] EvmForkExecutionArena still raises unsupported for local execution.
+
+## Phase 2A.6-OP operator guide gates before Phase 2B
+
+Phase 2A.6-OP adds operator guidance, a manual checklist, and deterministic safe
+sample artifacts. It does not approve execution.
+
+- [ ] `docs/PHASE_2A6_OPERATOR_GUIDE.md` has been read.
+- [ ] `docs/PHASE_2A6_MANUAL_REVIEW_CHECKLIST.md` has been completed by reviewer.
+- [ ] Sample bundle review passes by artifact directory when the live bundle reviewer is present.
+- [ ] Sample bundle review passes by bundle manifest when the live bundle reviewer is present.
+- [ ] Sample bundle reports remain sanitized.
+- [ ] Review success is not treated as execution permission.
+- [ ] No sample artifact is treated as proof of real live-local ABI compatibility.
+- [ ] No public RPC Red/Blue execution exists.
+- [ ] No executable fork drills exist.
+- [ ] `EvmForkExecutionArena.execute_local_intent()` still raises
+  `UNSUPPORTED_EXECUTABLE_FORK_DRILLS`.
+
+If any item is incomplete, stay in Phase 2A review/design mode.
