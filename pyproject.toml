@@ -22,6 +22,7 @@ include = [
   "environment*",
   "eval*",
   "evidence*",
+  "evaluation*",
   "forks*",
   "recon*",
   "redteam*",
