@@ -72,3 +72,22 @@ Phase 2A.5-R does not open Phase 2B. It adds role definitions, policy models, an
 - [ ] `EvmForkExecutionArena.execute_local_intent()` still raises `UNSUPPORTED_EXECUTABLE_FORK_DRILLS`.
 
 If any item is incomplete, stay in Phase 2A review/design mode.
+
+## Phase 2A.6 evidence quality gates before Phase 2B
+
+Phase 2A.6 improves review quality only. It does not enable execution.
+
+- [ ] `docs/live_fork_evidence_quality_report.md` has been generated and reviewed.
+- [ ] Evidence source is classified as fixture-backed, live-local, live-local-unavailable, missing, or unknown.
+- [ ] Fixture-only evidence is explicitly treated as not execution-ready.
+- [ ] Missing live local evidence is reported honestly as a review finding or blocker.
+- [ ] ABI compatibility and decode findings are triaged.
+- [ ] Reserve coverage gaps are scored and reported.
+- [ ] Dependency graph review gaps are reported.
+- [ ] Target manifest review gaps are reported.
+- [ ] Report output is sanitized and contains no reusable public-network artifact.
+- [ ] Final verdict is one of `REVIEW_INCOMPLETE`, `FIXTURE_ONLY_NOT_EXECUTION_READY`, `LIVE_READONLY_EVIDENCE_REVIEW_READY`, or `BLOCKED_FOR_PHASE_2B`.
+- [ ] No Phase 2A.6 verdict grants execution permission.
+- [ ] `EvmForkExecutionArena.execute_local_intent()` still raises `UNSUPPORTED_EXECUTABLE_FORK_DRILLS`.
+
+If any item is incomplete, stay in Phase 2A review/design mode.

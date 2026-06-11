@@ -111,3 +111,31 @@ Forbidden public-world capabilities are not described as missing features. They 
 - Blue: local-only pause, quarantine, circuit breaker, dependency isolation, emergency governance simulation, risk parameter adjustment, vault outflow guard, canonical identity enforcement, and incident evidence generation.
 
 These future capabilities are policy and design targets only until a separate Phase 2B PR explicitly opens the sealed execution harness.
+
+## Phase 2A.6 Live Fork Evidence Quality & ABI Compatibility Review
+
+Phase 2A.6 adds a read-only evidence quality review layer over the Phase 2A.5 evidence workflow. It consumes an evidence pack, exported target manifest, dependency graph review, and optional manual live fork smoke record, then produces a sanitized markdown quality report.
+
+Supported in Phase 2A.6:
+
+- Evidence source classification: fixture-backed, live-local, live-local-unavailable, missing, or unknown.
+- Evidence completeness findings for evidence pack, target manifest, dependency graph review, and optional manual live smoke result.
+- ABI compatibility and decode quality review from existing read-only discovery evidence.
+- Aave reserve coverage scoring and reserve gap triage.
+- Dependency graph review quality checks.
+- Target manifest review quality checks.
+- Phase 2B blocker summary.
+- Optional Phase 2B preflight output consumption as review evidence only.
+- Safe markdown output at `docs/live_fork_evidence_quality_report.md`.
+
+Still not supported:
+
+- executable EVM fork Red drills
+- transaction sending
+- private key support
+- public RPC Red/Blue execution
+- Aave Red drills
+- live Raydium/Solana/Aave interaction
+- execution-ready verdicts
+
+Phase 2A.6 verdicts are review verdicts only: `REVIEW_INCOMPLETE`, `FIXTURE_ONLY_NOT_EXECUTION_READY`, `LIVE_READONLY_EVIDENCE_REVIEW_READY`, or `BLOCKED_FOR_PHASE_2B`. There is intentionally no execution-approved verdict. Review success is not execution permission, and Phase 2B remains disabled.
