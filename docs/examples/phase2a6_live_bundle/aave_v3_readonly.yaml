@@ -1,0 +1,28 @@
+protocol_name: aave_v3
+network: ethereum-local-fork
+read_only_only: true
+scope_confirmed: false
+executable_drills_allowed: false
+evidence_source: live_readonly
+deployment_sources:
+  - local_evm_fork_twin_readonly
+protocol_metadata:
+  aave_v3:
+    reserve_discovery_status: fully_discovered
+    reserve_count: 2
+    max_reserves_processed: 8
+    truncated: false
+    unresolved_calls: []
+    unresolved_reserve_fields: []
+    reserves:
+      - symbol: SAMPLE_A
+        discovery_status: decoded
+        asset_price_status: decoded
+        oracle_source_status: decoded
+        unresolved_fields: []
+      - symbol: SAMPLE_B
+        discovery_status: decoded
+        asset_price_status: decoded
+        oracle_source_status: decoded
+        unresolved_fields: []
+operator_review_marker: localhost read-only sample
