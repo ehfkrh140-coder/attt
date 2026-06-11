@@ -10,7 +10,9 @@
 
 **For Red to be world-class, Recon must be stronger than Red.**
 
-This project forbids public-world side effects. It does **not** forbid extreme adversarial capability inside a sealed local lab. Strong local adversarial pressure is required for meaningful defense validation.
+This project forbids public-world side effects.
+It does **not** forbid extreme adversarial capability inside a sealed local lab.
+Strong local adversarial pressure is required for meaningful defense validation.
 
 ## Permanent forbidden outside the sealed lab
 

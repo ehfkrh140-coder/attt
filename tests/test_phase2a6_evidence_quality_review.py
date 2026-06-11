@@ -179,7 +179,7 @@ def test_review_script_generates_deterministic_markdown_from_fixture_inputs(tmp_
     output_text = output_path.read_text()
     assert output_text == result.stdout.rstrip("\n") + "\n"
     assert "# Live Fork Evidence Quality Report" in output_text
-    assert "Final readiness verdict: FIXTURE_ONLY_NOT_EXECUTION_READY" in output_text
+    assert "Final readiness verdict (review-only): FIXTURE_ONLY_NOT_EXECUTION_READY" in output_text
     assert "Execution permission granted: no" in output_text
 
 
@@ -206,6 +206,54 @@ def test_live_readonly_review_ready_is_not_execution_permission(tmp_path: Path) 
     assert report.final_readiness_verdict == EvidenceReadinessVerdict.LIVE_READONLY_EVIDENCE_REVIEW_READY
     assert any(blocker.code == "execution_permission_not_granted" for blocker in report.phase2b_blockers.blockers)
     assert "Phase 2B execution enabled: no" in report.to_markdown()
+
+
+def test_malformed_yaml_target_manifest_is_handled_safely(tmp_path: Path) -> None:
+    evidence_path, _target_path, dependency_path = _generate_fixture_inputs(tmp_path)
+    malformed = tmp_path / "malformed_target.yaml"
+    malformed.write_text("protocol_name: [unterminated\n")
+    report = review_evidence_quality(
+        evidence_pack=evidence_path,
+        target_manifest=malformed,
+        dependency_graph_review=dependency_path,
+    )
+    markdown = report.to_markdown()
+    assert report.final_readiness_verdict == EvidenceReadinessVerdict.REVIEW_INCOMPLETE
+    assert "manifest_parse_status: malformed (blocker)" in markdown
+    assert "Execution permission granted: no" in markdown
+
+
+def test_unknown_evidence_source_is_handled_safely(tmp_path: Path) -> None:
+    evidence_path, target_path, dependency_path = _generate_fixture_inputs(tmp_path)
+    evidence_path.write_text("Live Fork Evidence Pack\n- Evidence source: unknown-source\n")
+    data = yaml.safe_load(target_path.read_text())
+    data["evidence_source"] = "unknown"
+    data["deployment_sources"] = ["local_evm_fork_twin_readonly"]
+    target_path.write_text(yaml.safe_dump(data, sort_keys=False))
+    report = review_evidence_quality(
+        evidence_pack=evidence_path,
+        target_manifest=target_path,
+        dependency_graph_review=dependency_path,
+    )
+    assert report.source_type == EvidenceSourceType.UNKNOWN
+    assert report.final_readiness_verdict == EvidenceReadinessVerdict.BLOCKED_FOR_PHASE_2B
+    assert any(item.category == "live_evidence" for item in report.triage.items)
+
+
+def test_critical_docs_are_not_single_line_blobs() -> None:
+    critical_docs = [
+        Path("docs/PROJECT_STATE_CURRENT.md"),
+        Path("docs/live_fork_evidence_quality_report.md"),
+        Path("docs/SAFETY_BOUNDARY_MODEL.md"),
+        Path("docs/NO_FAKE_SCENARIO_STANDARD.md"),
+    ]
+    for doc in critical_docs:
+        text = doc.read_text(encoding="utf-8")
+        lines = text.splitlines()
+        assert len(lines) >= 10, doc
+        assert sum(1 for line in lines if line.startswith("## ")) >= 2, doc
+        assert max(len(line) for line in lines) < 240, doc
+
 
 
 def test_phase2b_execution_remains_disabled() -> None:

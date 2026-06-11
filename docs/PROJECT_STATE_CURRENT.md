@@ -1,16 +1,38 @@
-# Project State Current — 2026-06-10
+# Project State Current — 2026-06-11
 
 ## Continuity warning
 
-Do not restart the architecture. Do not replace existing modules. Continue from the current mainline project state.
+Do not restart the architecture.
+Do not replace existing modules.
+Continue from the current mainline project state.
 
-This repository is the **DeFi Defense Simulation Lab**, a defensive, isolated research framework for validating DeFi defense systems through local Recon / Red / Blue / Evaluation workflows against a confirmed target protocol or Protocol Twin.
+This repository is the **DeFi Defense Simulation Lab**.
+It is a defensive, isolated research framework for validating DeFi defense systems
+through local Recon / Red / Blue / Evaluation workflows against a confirmed target
+protocol or Protocol Twin.
 
-It is not a public-network attack tool. It is not a text-only scenario generator.
+It is not a public-network attack tool.
+It is not a text-only scenario generator.
 
 ## Latest completed phase
 
-Latest completed phase before the current work: **Phase 2A.5-R — Recon / Red / Blue Extreme Capability Reframe**.
+Latest completed phase: **Phase 2A.6 — Live Fork Evidence Quality & ABI Compatibility Review**.
+
+Phase 2A.6 added a read-only evidence quality review layer over the Phase 2A.5
+evidence workflow. It evaluates:
+
+- evidence completeness
+- ABI/decode quality
+- reserve coverage
+- dependency review quality
+- target manifest review quality
+- Phase 2B blockers
+
+Phase 2A.6 does not enable Phase 2B execution.
+
+## Previous key phase
+
+Previous key phase: **Phase 2A.5-R — Recon / Red / Blue Extreme Capability Reframe**.
 
 Phase 2A.5-R established:
 
@@ -20,14 +42,6 @@ Phase 2A.5-R established:
 - 내부 실험실에서는 현실과 똑같이, 오히려 더 극한적으로 구현한다.
 - Red가 최강이려면 Recon은 더 최강이어야 한다.
 - For Red to be world-class, Recon must be stronger than Red.
-
-## Current target phase
-
-Current target phase: **Phase 2A.6 — Live Fork Evidence Quality & ABI Compatibility Review**.
-
-Phase 2A.6 is a read-only review layer over Phase 2A.5 evidence. It evaluates evidence completeness, ABI/decode quality, reserve coverage, dependency review quality, target manifest review quality, and Phase 2B blockers.
-
-Phase 2A.6 does not enable Phase 2B execution.
 
 ## Current supported capabilities
 
@@ -78,7 +92,8 @@ Permanent forbidden outside the sealed lab:
 - raw reusable calldata / transaction bundle output
 - public-network portable exploit artifacts
 
-These are forbidden externally and modeled internally only after proper sealed-lab gates.
+These are forbidden externally.
+They may be modeled internally only after proper sealed-lab gates.
 
 ## Existing files/modules that must be preserved
 
@@ -99,11 +114,21 @@ Do not replace or rewrite these as a new framework:
 - `scripts/review_target_manifest.py`
 - `scripts/phase2b_preflight.py`
 - `scripts/review_live_fork_evidence_quality.py`
-- Phase 2A.5-R docs under `docs/*CAPABILITY*`, `docs/NO_FAKE_SCENARIO_STANDARD.md`, and `docs/RECON_TO_RED_DRILL_PIPELINE.md`
+- `docs/SAFETY_BOUNDARY_MODEL.md`
+- `docs/NO_FAKE_SCENARIO_STANDARD.md`
+- `docs/RECON_TO_RED_DRILL_PIPELINE.md`
+- `docs/RECON_CAPABILITY_BOUNDARY.md`
+- `docs/RED_TEAM_CAPABILITY_BOUNDARY.md`
+- `docs/BLUE_TEAM_CAPABILITY_BOUNDARY.md`
 
-## Next recommended step after Phase 2A.6
+## Next recommended step
 
-Recommended next step: Phase 2A.6 QA/gap closure, then a design-only Phase 2B gate review. Do not begin executable fork drills until a separate explicit Phase 2B PR opens sealed local execution with snapshot/revert, manifest scope, sanitized evidence, and SafetyGuard enforcement.
+Recommended next step: **Phase 2A.6 live-evidence QA pass**.
+
+That pass should review user-provided live-local evidence artifacts, if available.
+Do not begin executable fork drills until a separate explicit Phase 2B PR opens
+sealed local execution with snapshot/revert, manifest scope, sanitized evidence,
+and SafetyGuard enforcement.
 
 ## Exact validation commands
 
@@ -117,4 +142,8 @@ git status --short
 
 ## Final warning
 
-Do not restart architecture. Do not replace existing modules. Do not bypass SafetyGuard. Do not enable Phase 2B. Continue from current mainline state.
+Do not restart architecture.
+Do not replace existing modules.
+Do not bypass SafetyGuard.
+Do not enable Phase 2B.
+Continue from current mainline state.

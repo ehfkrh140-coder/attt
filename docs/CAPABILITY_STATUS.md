@@ -139,3 +139,22 @@ Still not supported:
 - execution-ready verdicts
 
 Phase 2A.6 verdicts are review verdicts only: `REVIEW_INCOMPLETE`, `FIXTURE_ONLY_NOT_EXECUTION_READY`, `LIVE_READONLY_EVIDENCE_REVIEW_READY`, or `BLOCKED_FOR_PHASE_2B`. There is intentionally no execution-approved verdict. Review success is not execution permission, and Phase 2B remains disabled.
+
+## Phase 2A.6 QA / Gap Closure status
+
+Phase 2A.6 QA hardens the read-only evidence quality review layer.
+It improves parser behavior for missing, partial, malformed, and unknown artifacts.
+It also improves report readability and continuity documentation.
+
+QA hardening confirms:
+
+- fixture-only evidence remains not execution-ready
+- live-readonly evidence can be review-ready only, never execution-approved
+- malformed manifests become safe review findings or blockers
+- unknown evidence sources are handled safely
+- missing artifacts are reported without failing CI
+- generated reports remain sanitized and readable
+- Phase 2B execution remains disabled
+
+No public-network execution, private key support, public RPC Red/Blue execution,
+Aave Red drills, or executable fork drills are introduced by this QA pass.

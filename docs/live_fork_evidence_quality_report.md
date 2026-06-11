@@ -2,11 +2,12 @@
 
 ## 1. Summary
 - Phase: Phase 2A.6 — Live Fork Evidence Quality & ABI Compatibility Review
-- Final readiness verdict: FIXTURE_ONLY_NOT_EXECUTION_READY
+- Final readiness verdict (review-only): FIXTURE_ONLY_NOT_EXECUTION_READY
 - Evidence quality overall score: 0.69
 - Execution permission granted: no
 - Phase 2B execution enabled: no
 - Review success is not execution permission.
+- Live-readonly review-ready means evidence can be reviewed; it never approves execution.
 
 ## 2. Evidence source classification
 - Evidence source type: fixture-backed
@@ -39,6 +40,7 @@
 - dependency_graph_review.md: fixture_review_candidate (review) — Dependency graph review candidate status.
 
 ## 7. Target manifest review quality
+- manifest_parse_status: parsed (ok) — Target manifest parsed as read-only review input.
 - aave_v3_readonly.yaml: read_only (ok) — Manifest must remain read-only in Phase 2A.6.
 - scope_confirmation: unconfirmed (review) — Scope confirmation is reviewer-controlled and does not grant execution.
 
@@ -51,11 +53,11 @@
 - scope_confirmation: review — Scope confirmation is reviewer-controlled and does not grant execution.
 
 ## 9. Phase 2B blocker summary
-- phase2b_execution_gate_absent: A separate explicitly approved Phase 2B gate is still required.
-- execution_permission_not_granted: This evidence review does not grant execution permission.
-- fixture_only_evidence: Fixture-backed evidence cannot approve Phase 2B.
-- live_local_readonly_evidence_missing: Live local read-only evidence is not present.
-- manual_live_smoke_missing: Manual live fork smoke result is missing.
+- **BLOCKER** `phase2b_execution_gate_absent` — A separate explicitly approved Phase 2B gate is still required.
+- **BLOCKER** `execution_permission_not_granted` — This evidence review does not grant execution permission.
+- **BLOCKER** `fixture_only_evidence` — Fixture-backed evidence cannot approve Phase 2B.
+- **BLOCKER** `live_local_readonly_evidence_missing` — Live local read-only evidence is not present.
+- **BLOCKER** `manual_live_smoke_missing` — Manual live fork smoke result is missing.
 
 ## 10. Safety and containment confirmation
 - Public-world side effects: forbidden
@@ -63,10 +65,12 @@
 - Aave Red drills executed by this review: no
 - Live protocol interaction by this review: no
 - Secret signing material included: absent
-- Reusable call data artifacts included: absent
-- Bundled transaction artifacts included: absent
+- Reusable invocation artifacts included: absent
+- Bundled execution artifacts included: absent
 - Portable attack artifacts included: absent
+- Function-identifier artifacts included: absent
 
 ## 11. Final readiness verdict
-- Verdict: FIXTURE_ONLY_NOT_EXECUTION_READY
+- Verdict (review-only): FIXTURE_ONLY_NOT_EXECUTION_READY
+- This verdict is not an execution approval.
 - Phase 2A.6 can make evidence review-ready; it cannot approve execution.

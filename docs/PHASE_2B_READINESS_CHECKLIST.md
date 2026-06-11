@@ -91,3 +91,20 @@ Phase 2A.6 improves review quality only. It does not enable execution.
 - [ ] `EvmForkExecutionArena.execute_local_intent()` still raises `UNSUPPORTED_EXECUTABLE_FORK_DRILLS`.
 
 If any item is incomplete, stay in Phase 2A review/design mode.
+
+## Phase 2A.6 QA / Gap Closure gates
+
+Phase 2A.6 QA is still review-only.
+It hardens the evidence quality report and parser, but grants no execution permission.
+
+- [ ] Missing evidence artifacts are handled safely.
+- [ ] Malformed target manifests are handled safely.
+- [ ] Unknown evidence sources are handled safely.
+- [ ] Critical docs are readable and not single-line blobs.
+- [ ] Live-readonly review-ready wording cannot be mistaken for execution approval.
+- [ ] Fixture-backed evidence remains not execution-ready.
+- [ ] Report output contains no raw calldata, selectors, transaction bundles, secrets, upstream RPC URLs, or portable exploit artifacts.
+- [ ] Phase 2B execution remains disabled.
+- [ ] `EvmForkExecutionArena.execute_local_intent()` still raises `UNSUPPORTED_EXECUTABLE_FORK_DRILLS`.
+
+If any item is incomplete, stay in Phase 2A review/design mode.
