@@ -159,3 +159,21 @@ assess user-provided localhost artifacts without enabling executable fork drills
   `UNSUPPORTED_EXECUTABLE_FORK_DRILLS`.
 
 If any item is incomplete, stay in Phase 2A review/design mode.
+
+## Phase 2A.6-RP review packet governance gates before Phase 2B
+
+Phase 2A.6-RP is governance and CI-hardening only. It adds review packets and a
+verification gate, but it does not approve execution.
+
+- [ ] `docs/CODEX_PR_REVIEW_PROTOCOL.md` has been read.
+- [ ] `docs/reviews/PHASE_2A6_RP_REVIEW_PACKET.md` passes the verifier.
+- [ ] `.github/pull_request_template.md` requires compact review packet fields.
+- [ ] Review packet claims are independently checked against files, tests, and CI.
+- [ ] Review packet states that it is a guide, not proof by itself.
+- [ ] Review packet includes reviewer focus map and remaining gaps.
+- [ ] No review packet can grant execution permission.
+- [ ] No review packet can change Phase 2B status.
+- [ ] `EvmForkExecutionArena.execute_local_intent()` still raises
+  `UNSUPPORTED_EXECUTABLE_FORK_DRILLS`.
+
+If any item is incomplete, stay in Phase 2A review/design mode.

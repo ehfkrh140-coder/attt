@@ -263,3 +263,20 @@ Phase 2B execution | Blocked | No executable fork drills are enabled
 Phase 2A.6-Live Review does not prove that live-local evidence exists unless a
 user provides those artifacts. It only classifies and reviews the supplied local
 files.
+
+## Phase 2A.6-RP review packet governance status
+
+Phase 2A.6-RP adds a required Codex PR review packet protocol and verifier. It
+is governance and CI-hardening only. It does not change runtime permissions.
+
+Capability | Status | Notes
+--- | --- | ---
+Codex PR Review Packet protocol | Supported | Falsifiable review guide required for future PRs
+Review packet verifier | Supported | Local packet and local GitHub event payload modes
+PR template review checklist | Supported | Compact review packet fields in PR body
+Reviewer focus map | Supported | Changed files prioritized for inspection
+Claims-to-verify section | Supported | Packet must state what reviewer must verify independently
+Phase 2B execution | Blocked | Review governance does not enable execution
+
+Review packets reduce reviewer burden but do not replace independent review,
+GitHub diff inspection, CI logs, or direct source inspection.

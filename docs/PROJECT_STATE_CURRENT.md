@@ -16,17 +16,21 @@ It is not a text-only scenario generator.
 
 ## Latest completed phase
 
-Latest completed phase: **Phase 2A.6-Live Review — User-provided live-local artifact assessment**.
+Latest completed phase: **Phase 2A.6-RP — Codex PR Review Packet & Verification Gate**.
 
-Phase 2A.6-Live Review adds a read-only bundle review pass for user-provided
-localhost artifacts. It classifies missing, fixture-backed, live-local, unknown,
-malformed, and unsafe artifacts, then feeds safe inputs into the existing
-Phase 2A.6 evidence quality review path. It does not run discovery automatically,
-does not contact public RPC, and does not grant execution permission.
+Phase 2A.6-RP adds a mandatory Codex PR review packet protocol, a local verifier,
+a model review packet, and a PR template checklist. It is governance and
+CI-hardening only. It does not run discovery, does not contact public RPC, and
+does not grant execution permission.
 
-Previous key hardening phase: **Phase 2A.6-H1 — Source Format Integrity &
-Hidden Unicode Hygiene**. Phase 2A.6-H1 verifies source/doc formatting, rejects
-hidden bidirectional Unicode controls, and keeps evidence review readable in raw
+Previous completed phase: **Phase 2A.6-Live Review — User-provided live-local
+artifact assessment**. Phase 2A.6-Live Review adds a read-only bundle review pass
+for user-provided localhost artifacts and feeds safe inputs into the existing
+Phase 2A.6 evidence quality review path.
+
+Previous hardening phase: **Phase 2A.6-H1 — Source Format Integrity & Hidden
+Unicode Hygiene**. Phase 2A.6-H1 verifies source/doc formatting, rejects hidden
+bidirectional Unicode controls, and keeps evidence review readable in raw
 repository views.
 
 Phase 2A.6 added a read-only evidence quality review layer over the Phase 2A.5
@@ -43,13 +47,7 @@ Phase 2A.6 does not enable Phase 2B execution.
 
 ## Previous key phase
 
-Previous key phase: **Phase 2A.6-H1 — Source Format Integrity & Hidden Unicode Hygiene**.
-
-Phase 2A.6-H1 must remain intact: critical source/docs stay readable, critical
-reports keep visible headings, and hidden bidirectional Unicode controls remain
-rejected.
-
-Important preserved earlier phase: **Phase 2A.5-R — Recon / Red / Blue Extreme
+Previous key design phase: **Phase 2A.5-R — Recon / Red / Blue Extreme
 Capability Reframe**.
 
 Phase 2A.5-R established:
@@ -83,6 +81,11 @@ Phase 2A.5-R established:
 - Phase 2A.6 evidence quality review model and report generation
 - Phase 2A.6-H1 source format and hidden Unicode hygiene checks
 - Phase 2A.6-Live Review user-provided artifact bundle assessment
+- Codex PR Review Packet protocol
+- Review packet verifier
+- PR template review checklist
+- Reviewer focus map
+- Claims-to-verify review section
 
 ## Current unsupported capabilities
 
@@ -136,12 +139,15 @@ Do not replace or rewrite these as a new framework:
 - `scripts/phase2b_preflight.py`
 - `scripts/review_live_fork_evidence_quality.py`
 - `scripts/review_live_artifact_bundle.py`
+- `scripts/verify_codex_review_packet.py`
 - `docs/SAFETY_BOUNDARY_MODEL.md`
 - `docs/NO_FAKE_SCENARIO_STANDARD.md`
 - `docs/RECON_TO_RED_DRILL_PIPELINE.md`
 - `docs/RECON_CAPABILITY_BOUNDARY.md`
 - `docs/RED_TEAM_CAPABILITY_BOUNDARY.md`
 - `docs/BLUE_TEAM_CAPABILITY_BOUNDARY.md`
+- `docs/CODEX_PR_REVIEW_PROTOCOL.md`
+- `docs/reviews/REVIEW_PACKET_TEMPLATE.md`
 
 ## Next recommended step
 
@@ -161,8 +167,10 @@ python main.py
 python scripts/verify_mvp.py
 python scripts/review_live_fork_evidence_quality.py --fixture-demo --output /tmp/phase2a6_evidence_quality_report.md
 python scripts/review_live_artifact_bundle.py --fixture-demo --output /tmp/live_artifact_bundle_review.md
-python -m py_compile evidence/evidence_quality.py scripts/review_live_fork_evidence_quality.py
-python -m py_compile evidence/live_artifact_bundle.py scripts/review_live_artifact_bundle.py
+python -m py_compile evidence/evidence_quality.py evidence/live_artifact_bundle.py \
+  scripts/review_live_fork_evidence_quality.py scripts/review_live_artifact_bundle.py
+python -m py_compile scripts/verify_codex_review_packet.py
+python scripts/verify_codex_review_packet.py --packet docs/reviews/PHASE_2A6_RP_REVIEW_PACKET.md
 git status --short
 ```
 
