@@ -68,3 +68,93 @@ The default reserve limit is 8. A user may request a different limit, but the re
 - Target manifest review: parses generated manifests and checks read-only flags, but does not confirm scope automatically.
 - Dependency graph review: generated from Recon output and reserve metadata; it is a review candidate, not execution permission.
 - Phase 2B execution: still blocked and disabled. No transactions are sent and no Aave Red drills run.
+
+## Phase 2A.5-R Recon / Red / Blue Extreme Capability Reframe
+
+The capability model now uses this permanent rule:
+
+> External public-world behavior is forbidden. Internal sealed-lab equivalents must be modeled with maximum realism.
+
+> 외부 세계에서는 금지한다. 내부 실험실에서는 현실과 똑같이, 오히려 더 극한적으로 구현한다.
+
+> Red가 최강이려면 Recon은 더 최강이어야 한다.
+
+> For Red to be world-class, Recon must be stronger than Red.
+
+Forbidden public-world capabilities are not described as missing features. They are **forbidden outside** and **modeled inside** through sealed-lab equivalents.
+
+### Permanent forbidden capabilities
+
+- public network active probing
+- public network transaction broadcast
+- public RPC through Red/Blue execution
+- live victim targeting
+- public mempool observation for attack discovery
+- real private key usage
+- real fund movement
+- out-of-scope contract/program exploration
+- replayable exploit package generation
+- raw reusable calldata / transaction bundle output
+- public-network portable exploit artifacts
+
+### Current Phase 2A limitations
+
+- EVM fork and Aave V3 support remain read-only discovery, planning, evidence, and preflight review.
+- Red can execute MockArena drills, but executable EVM fork Red drills remain disabled.
+- Blue can defend in local arenas and consume blind observables, but does not operate as a public-network bot.
+- Phase 2B execution remains blocked; `EvmForkExecutionArena.execute_local_intent()` still raises `UNSUPPORTED_EXECUTABLE_FORK_DRILLS`.
+
+### Future sealed-local capabilities after explicit gates
+
+- Recon: snapshot/revert-controlled local active probing, local-only transaction simulation, synthetic account/mint construction, dependency failure construction, adversarial external-world pressure discovery.
+- Red: sealed local fork transaction execution, local-only signer use, local-only impersonation, synthetic attacker mints/accounts, manifest-scoped retired/stale target interaction, local-only multi-pool campaigns, adversarial ordering, private-orderflow simulation.
+- Blue: local-only pause, quarantine, circuit breaker, dependency isolation, emergency governance simulation, risk parameter adjustment, vault outflow guard, canonical identity enforcement, and incident evidence generation.
+
+These future capabilities are policy and design targets only until a separate Phase 2B PR explicitly opens the sealed execution harness.
+
+## Phase 2A.6 Live Fork Evidence Quality & ABI Compatibility Review
+
+Phase 2A.6 adds a read-only evidence quality review layer over the Phase 2A.5 evidence workflow. It consumes an evidence pack, exported target manifest, dependency graph review, and optional manual live fork smoke record, then produces a sanitized markdown quality report.
+
+Supported in Phase 2A.6:
+
+- Evidence source classification: fixture-backed, live-local, live-local-unavailable, missing, or unknown.
+- Evidence completeness findings for evidence pack, target manifest, dependency graph review, and optional manual live smoke result.
+- ABI compatibility and decode quality review from existing read-only discovery evidence.
+- Aave reserve coverage scoring and reserve gap triage.
+- Dependency graph review quality checks.
+- Target manifest review quality checks.
+- Phase 2B blocker summary.
+- Optional Phase 2B preflight output consumption as review evidence only.
+- Safe markdown output at `docs/live_fork_evidence_quality_report.md`.
+
+Still not supported:
+
+- executable EVM fork Red drills
+- transaction sending
+- private key support
+- public RPC Red/Blue execution
+- Aave Red drills
+- live Raydium/Solana/Aave interaction
+- execution-ready verdicts
+
+Phase 2A.6 verdicts are review verdicts only: `REVIEW_INCOMPLETE`, `FIXTURE_ONLY_NOT_EXECUTION_READY`, `LIVE_READONLY_EVIDENCE_REVIEW_READY`, or `BLOCKED_FOR_PHASE_2B`. There is intentionally no execution-approved verdict. Review success is not execution permission, and Phase 2B remains disabled.
+
+## Phase 2A.6 QA / Gap Closure status
+
+Phase 2A.6 QA hardens the read-only evidence quality review layer.
+It improves parser behavior for missing, partial, malformed, and unknown artifacts.
+It also improves report readability and continuity documentation.
+
+QA hardening confirms:
+
+- fixture-only evidence remains not execution-ready
+- live-readonly evidence can be review-ready only, never execution-approved
+- malformed manifests become safe review findings or blockers
+- unknown evidence sources are handled safely
+- missing artifacts are reported without failing CI
+- generated reports remain sanitized and readable
+- Phase 2B execution remains disabled
+
+No public-network execution, private key support, public RPC Red/Blue execution,
+Aave Red drills, or executable fork drills are introduced by this QA pass.
