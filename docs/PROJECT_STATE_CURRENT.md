@@ -16,7 +16,11 @@ It is not a text-only scenario generator.
 
 ## Latest completed phase
 
-Latest completed phase: **Phase 2A.6 — Live Fork Evidence Quality & ABI Compatibility Review**.
+Latest completed phase: **Phase 2A.6-H1 — Source Format Integrity & Hidden Unicode Hygiene**.
+
+Phase 2A.6-H1 hardened the Phase 2A.6 read-only evidence quality review layer.
+It verifies source/doc formatting, rejects hidden bidirectional Unicode controls,
+and keeps evidence review readable in raw repository views.
 
 Phase 2A.6 added a read-only evidence quality review layer over the Phase 2A.5
 evidence workflow. It evaluates:
@@ -63,6 +67,7 @@ Phase 2A.5-R established:
 - Phase 2B preflight review gate
 - Phase 2A.5-R Recon/Red/Blue capability boundary model
 - Phase 2A.6 evidence quality review model and report generation
+- Phase 2A.6-H1 source format and hidden Unicode hygiene checks
 
 ## Current unsupported capabilities
 
@@ -123,7 +128,7 @@ Do not replace or rewrite these as a new framework:
 
 ## Next recommended step
 
-Recommended next step: **Phase 2A.6 live-evidence QA pass**.
+Recommended next step: **Phase 2A.6 live-artifact review pass**.
 
 That pass should review user-provided live-local evidence artifacts, if available.
 Do not begin executable fork drills until a separate explicit Phase 2B PR opens

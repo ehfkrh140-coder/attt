@@ -14,6 +14,30 @@ from redteam.local_tx_intent import LocalTxIntent
 from scripts.generate_live_fork_evidence_pack import generate_evidence_pack
 
 
+BIDI_CONTROL_CODEPOINTS = {
+    0x202A,
+    0x202B,
+    0x202C,
+    0x202D,
+    0x202E,
+    0x2066,
+    0x2067,
+    0x2068,
+    0x2069,
+}
+
+CRITICAL_FORMAT_FILES = (
+    Path("docs/PROJECT_STATE_CURRENT.md"),
+    Path("docs/live_fork_evidence_quality_report.md"),
+    Path("docs/SAFETY_BOUNDARY_MODEL.md"),
+    Path("docs/CAPABILITY_STATUS.md"),
+    Path("docs/PHASE_2B_READINESS_CHECKLIST.md"),
+    Path("evidence/evidence_quality.py"),
+    Path("scripts/review_live_fork_evidence_quality.py"),
+    Path("tests/test_phase2a6_evidence_quality_review.py"),
+)
+
+
 def _generate_fixture_inputs(tmp_path: Path) -> tuple[Path, Path, Path]:
     evidence_path = tmp_path / "aave_v3_evidence_pack.md"
     target_path = tmp_path / "aave_v3_readonly.yaml"
@@ -240,20 +264,63 @@ def test_unknown_evidence_source_is_handled_safely(tmp_path: Path) -> None:
     assert any(item.category == "live_evidence" for item in report.triage.items)
 
 
-def test_critical_docs_are_not_single_line_blobs() -> None:
-    critical_docs = [
-        Path("docs/PROJECT_STATE_CURRENT.md"),
-        Path("docs/live_fork_evidence_quality_report.md"),
-        Path("docs/SAFETY_BOUNDARY_MODEL.md"),
-        Path("docs/NO_FAKE_SCENARIO_STANDARD.md"),
-    ]
-    for doc in critical_docs:
-        text = doc.read_text(encoding="utf-8")
+def test_critical_source_and_docs_are_readable_multiline_files() -> None:
+    minimum_lines = {
+        "evidence/evidence_quality.py": 100,
+        "scripts/review_live_fork_evidence_quality.py": 50,
+        "tests/test_phase2a6_evidence_quality_review.py": 100,
+    }
+    for path in CRITICAL_FORMAT_FILES:
+        text = path.read_text(encoding="utf-8")
         lines = text.splitlines()
-        assert len(lines) >= 10, doc
-        assert sum(1 for line in lines if line.startswith("## ")) >= 2, doc
-        assert max(len(line) for line in lines) < 240, doc
+        assert len(lines) >= minimum_lines.get(str(path), 20), path
+        assert max(len(line) for line in lines) <= 140, path
+        if path.suffix == ".md":
+            assert sum(1 for line in lines if line.startswith("## ")) >= 2, path
 
+
+def test_critical_source_and_docs_have_no_bidi_controls() -> None:
+    for path in CRITICAL_FORMAT_FILES:
+        text = path.read_text(encoding="utf-8")
+        bidi = [
+            (line_number, hex(ord(ch)))
+            for line_number, line in enumerate(text.splitlines(), start=1)
+            for ch in line
+            if ord(ch) in BIDI_CONTROL_CODEPOINTS
+        ]
+        assert not bidi, (path, bidi[:5])
+
+
+def test_generated_report_has_visible_required_sections() -> None:
+    text = Path("docs/live_fork_evidence_quality_report.md").read_text(encoding="utf-8")
+    required_sections = [
+        "## 1. Summary",
+        "## 2. Evidence source classification",
+        "## 3. Evidence completeness",
+        "## 4. ABI compatibility and decode quality",
+        "## 5. Aave reserve coverage",
+        "## 6. Dependency graph review quality",
+        "## 7. Target manifest review quality",
+        "## 8. Discovery triage items",
+        "## 9. Phase 2B blocker summary",
+        "## 10. Safety and containment confirmation",
+        "## 11. Final readiness verdict",
+    ]
+    for section in required_sections:
+        assert section in text
+
+
+def test_evidence_quality_python_files_compile() -> None:
+    subprocess.run(
+        [
+            sys.executable,
+            "-m",
+            "py_compile",
+            "evidence/evidence_quality.py",
+            "scripts/review_live_fork_evidence_quality.py",
+        ],
+        check=True,
+    )
 
 
 def test_phase2b_execution_remains_disabled() -> None:
