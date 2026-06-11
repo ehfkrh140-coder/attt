@@ -242,3 +242,24 @@ The hygiene pass confirms:
 
 No public-network execution, private key support, public RPC Red/Blue execution,
 Aave Red drills, or executable fork drills are introduced by this hygiene pass.
+
+## Phase 2A.6-Live Review capability status
+
+Phase 2A.6-Live Review adds a safe review pass for user-provided localhost
+read-only artifact bundles. It is review-only and does not change execution
+permissions.
+
+Capability | Status | Notes
+--- | --- | ---
+Live artifact bundle convention | Supported / Review-only | Local file references only
+Bundle manifest review | Supported / Review-only | Reads manifest paths, does not run discovery
+Artifact directory review | Supported / Review-only | Classifies conventional filenames
+Fixture-demo bundle review | Supported / CI-only | Deterministic, not execution-ready
+Live-local read-only classification | Supported / Review-only | Requires localhost/read-only indicators
+Unsafe artifact blocking | Supported | Unsafe contents are not printed into reports
+Evidence quality integration | Supported / Review-only | Feeds safe inputs into existing Phase 2A.6 reviewer
+Phase 2B execution | Blocked | No executable fork drills are enabled
+
+Phase 2A.6-Live Review does not prove that live-local evidence exists unless a
+user provides those artifacts. It only classifies and reviews the supplied local
+files.

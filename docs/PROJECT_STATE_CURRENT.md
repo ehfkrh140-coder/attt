@@ -16,11 +16,18 @@ It is not a text-only scenario generator.
 
 ## Latest completed phase
 
-Latest completed phase: **Phase 2A.6-H1 — Source Format Integrity & Hidden Unicode Hygiene**.
+Latest completed phase: **Phase 2A.6-Live Review — User-provided live-local artifact assessment**.
 
-Phase 2A.6-H1 hardened the Phase 2A.6 read-only evidence quality review layer.
-It verifies source/doc formatting, rejects hidden bidirectional Unicode controls,
-and keeps evidence review readable in raw repository views.
+Phase 2A.6-Live Review adds a read-only bundle review pass for user-provided
+localhost artifacts. It classifies missing, fixture-backed, live-local, unknown,
+malformed, and unsafe artifacts, then feeds safe inputs into the existing
+Phase 2A.6 evidence quality review path. It does not run discovery automatically,
+does not contact public RPC, and does not grant execution permission.
+
+Previous key hardening phase: **Phase 2A.6-H1 — Source Format Integrity &
+Hidden Unicode Hygiene**. Phase 2A.6-H1 verifies source/doc formatting, rejects
+hidden bidirectional Unicode controls, and keeps evidence review readable in raw
+repository views.
 
 Phase 2A.6 added a read-only evidence quality review layer over the Phase 2A.5
 evidence workflow. It evaluates:
@@ -36,7 +43,14 @@ Phase 2A.6 does not enable Phase 2B execution.
 
 ## Previous key phase
 
-Previous key phase: **Phase 2A.5-R — Recon / Red / Blue Extreme Capability Reframe**.
+Previous key phase: **Phase 2A.6-H1 — Source Format Integrity & Hidden Unicode Hygiene**.
+
+Phase 2A.6-H1 must remain intact: critical source/docs stay readable, critical
+reports keep visible headings, and hidden bidirectional Unicode controls remain
+rejected.
+
+Important preserved earlier phase: **Phase 2A.5-R — Recon / Red / Blue Extreme
+Capability Reframe**.
 
 Phase 2A.5-R established:
 
@@ -68,6 +82,7 @@ Phase 2A.5-R established:
 - Phase 2A.5-R Recon/Red/Blue capability boundary model
 - Phase 2A.6 evidence quality review model and report generation
 - Phase 2A.6-H1 source format and hidden Unicode hygiene checks
+- Phase 2A.6-Live Review user-provided artifact bundle assessment
 
 ## Current unsupported capabilities
 
@@ -111,6 +126,7 @@ Do not replace or rewrite these as a new framework:
 - `core/containment_policy.py`
 - `evidence/live_fork_evidence.py`
 - `evidence/evidence_quality.py`
+- `evidence/live_artifact_bundle.py`
 - `recon/recon_engine.py`
 - `recon/extreme_recon_model.py`
 - `targets/aave_v3_readonly.py`
@@ -119,6 +135,7 @@ Do not replace or rewrite these as a new framework:
 - `scripts/review_target_manifest.py`
 - `scripts/phase2b_preflight.py`
 - `scripts/review_live_fork_evidence_quality.py`
+- `scripts/review_live_artifact_bundle.py`
 - `docs/SAFETY_BOUNDARY_MODEL.md`
 - `docs/NO_FAKE_SCENARIO_STANDARD.md`
 - `docs/RECON_TO_RED_DRILL_PIPELINE.md`
@@ -128,12 +145,13 @@ Do not replace or rewrite these as a new framework:
 
 ## Next recommended step
 
-Recommended next step: **Phase 2A.6 live-artifact review pass**.
+Recommended next step: **Phase 2A.6 live-review fixture expansion and manual
+operator guide validation**.
 
-That pass should review user-provided live-local evidence artifacts, if available.
-Do not begin executable fork drills until a separate explicit Phase 2B PR opens
-sealed local execution with snapshot/revert, manifest scope, sanitized evidence,
-and SafetyGuard enforcement.
+Future work may add more deterministic safe sample bundles and clearer manual
+operator handoff examples. Do not begin executable fork drills until a separate
+explicit Phase 2B PR opens sealed local execution with snapshot/revert, manifest
+scope, sanitized evidence, and SafetyGuard enforcement.
 
 ## Exact validation commands
 
@@ -142,6 +160,9 @@ pytest -q
 python main.py
 python scripts/verify_mvp.py
 python scripts/review_live_fork_evidence_quality.py --fixture-demo --output /tmp/phase2a6_evidence_quality_report.md
+python scripts/review_live_artifact_bundle.py --fixture-demo --output /tmp/live_artifact_bundle_review.md
+python -m py_compile evidence/evidence_quality.py scripts/review_live_fork_evidence_quality.py
+python -m py_compile evidence/live_artifact_bundle.py scripts/review_live_artifact_bundle.py
 git status --short
 ```
 

@@ -137,3 +137,25 @@ integrity, but grants no execution permission.
   `UNSUPPORTED_EXECUTABLE_FORK_DRILLS`.
 
 If any item is incomplete, stay in Phase 2A review/design mode.
+
+## Phase 2A.6-Live Review gates before Phase 2B
+
+Phase 2A.6-Live Review is still read-only and review-only. It helps reviewers
+assess user-provided localhost artifacts without enabling executable fork drills.
+
+- [ ] `docs/PHASE_2A6_LIVE_ARTIFACT_REVIEW.md` has been read.
+- [ ] User-provided artifact bundle references local files only.
+- [ ] Bundle review reports missing artifacts honestly.
+- [ ] Bundle review marks fixture-backed artifacts as not execution-ready.
+- [ ] Bundle review marks localhost read-only artifacts as review-ready only.
+- [ ] Unsafe artifacts are blocked without printing unsafe contents.
+- [ ] Safe evidence pack, target manifest, and dependency graph inputs feed the
+  existing Phase 2A.6 evidence-quality reviewer.
+- [ ] No bundle verdict grants execution permission.
+- [ ] No public RPC Red/Blue path is introduced.
+- [ ] No live discovery runs unless a reviewer explicitly runs a read-only
+  localhost command outside CI.
+- [ ] `EvmForkExecutionArena.execute_local_intent()` still raises
+  `UNSUPPORTED_EXECUTABLE_FORK_DRILLS`.
+
+If any item is incomplete, stay in Phase 2A review/design mode.
