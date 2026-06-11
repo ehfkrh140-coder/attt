@@ -30,33 +30,38 @@ These short checklist phrases are kept for existing release checks.
 
 ## Concrete design gates added before implementation
 
-- [ ] manual_live_fork_smoke_result.md exists and is reviewed.
-- [ ] reviewed_target_manifest exists. Reviewed target manifest exists.
+- [ ] `manual_live_fork_smoke_result.md` exists and is reviewed.
+- [ ] Reviewed target manifest exists.
 - [ ] Dependency graph review exists.
 - [ ] Fork execution policy has been reviewed.
 - [ ] First drill candidate has been approved.
-- [ ] explicit enable flag absent by default. Explicit enable flag is absent by default.
+- [ ] Explicit enable flag is absent by default.
 - [ ] CI still does not run live fork execution.
-- [ ] `EvmForkExecutionArena.execute_local_intent()` still raises `UNSUPPORTED_EXECUTABLE_FORK_DRILLS` until implementation approval.
+- [ ] `EvmForkExecutionArena.execute_local_intent()` still raises
+  `UNSUPPORTED_EXECUTABLE_FORK_DRILLS` until implementation approval.
 
 ## Live-smoke support preflight gates
 
-- [ ] `scripts/record_live_fork_smoke_result.py` has been used to create a safe manual smoke record.
-- [ ] `scripts/phase2b_preflight.py` reports missing prerequisites until review artifacts exist.
+- [ ] `scripts/record_live_fork_smoke_result.py` created a safe smoke record.
+- [ ] `scripts/phase2b_preflight.py` reports missing prerequisites until review
+  artifacts exist.
 - [ ] `docs/PHASE_2B_PREFLIGHT.md` has been read by the reviewer.
-- [ ] The target manifest remains unconfirmed unless a reviewer explicitly confirms scope.
+- [ ] Target manifest remains unconfirmed unless a reviewer confirms scope.
 - [ ] Fork execution mode is still disabled by default.
-- [ ] `EvmForkExecutionArena.execute_local_intent` still raises `UNSUPPORTED_EXECUTABLE_FORK_DRILLS`.
+- [ ] `EvmForkExecutionArena.execute_local_intent` still raises
+  `UNSUPPORTED_EXECUTABLE_FORK_DRILLS`.
 
 ## Phase 2A.5 evidence and review gates
 
 - [ ] Live local fork evidence pack generated from localhost and reviewed.
-- [ ] Fixture-only evidence explicitly rejected for Phase 2B execution readiness.
-- [ ] Read-only TargetProtocolSpec manifest candidate reviewed without auto-confirming scope.
+- [ ] Fixture-only evidence explicitly rejected for Phase 2B readiness.
+- [ ] Read-only TargetProtocolSpec manifest candidate reviewed.
+- [ ] Generated manifest does not auto-confirm scope.
 - [ ] Dependency graph review candidate generated from Recon and reserve metadata.
 - [ ] Manual live fork smoke result recorded and reviewed.
 - [ ] Phase 2B preflight run against evidence pack, manifest, and dependency review.
-- [ ] Preflight output reviewed as review-ready only, not execution-enabled.
+- [ ] Preflight output reviewed as review-ready only.
+- [ ] Preflight output is not execution-enabled.
 - [ ] Fork execution mode remains disabled.
 - [ ] EvmForkExecutionArena still raises unsupported for local execution.
 

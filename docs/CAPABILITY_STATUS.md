@@ -1,65 +1,118 @@
 # Capability Status
 
-| Capability | Status | Notes |
-|---|---|---|
-| MockArena executable simulation | Supported | Current v0.1.0 MVP runtime for local state-changing drills |
-| MockArena executable drills | Supported | Current MVP runtime for local state-changing drills |
-| Blind Blue defense | Supported | Uses blind features and no Red answer labels |
-| Multi-mode evaluation | Supported | defense_first, red_first, gas_priority, private_orderflow, randomized_seeded |
-| Protocol Twin onboarding scaffold | Supported | Distinguishes MockArena, EVM Fork Twin, and Sui State Twin modes |
-| External World Twin local emulation | Supported | Emulates orderflow, keepers, oracle timing, liquidity, bridge stubs, offchain stubs, user intents, and network conditions |
-| Twin Fidelity Score | Supported | Reports copied/emulated/missing coverage honestly |
-| Scorecards | Supported | Recon, Red, Blue, Safety, and Evaluation quality scores |
-| GitHub Actions CI | Supported | Runs install, pytest, main demo, and MVP verifier |
-| Beginner-safe CLI summary | Supported | `main.py` and verifier output are sanitized |
-| EVM Fork Twin read-only/gated planning | Partial / Gated | Aave V3 path is recognized, but executable fork drills are blocked until adapter readiness |
-| Aave V3 fork-twin onboarding path | Partial / Gated | Uses EVM Fork Twin path and never silently falls back to mock |
-| EVM Fork adapter | Gated / Not implemented | Placeholder only; executable support is blocked until a real isolated adapter exists |
-| Sui Localnet adapter | Gated / Not implemented | Placeholder only; executable support is blocked until a real isolated adapter exists |
-| executable EVM fork Red drills | Unsupported / Not implemented | Intentionally gated for this release |
-| real Aave adapter | Unsupported / Not implemented | Future work only; not part of v0.1.0 |
-| Sui State Twin | Unsupported / Not implemented | Gated until a real Sui adapter exists |
-| real Haedal adapter | Unsupported / Not implemented | Future work only; not part of v0.1.0 |
-| Haedal path | Gated / Not implemented | Sui state twin adapter is not implemented |
-| Public network execution | Not supported | Intentionally forbidden by the safety boundary |
-| Real private keys | Not supported | Intentionally forbidden by the safety boundary |
-| EVM Fork Twin read-only discovery scaffold | Supported | Validates local fork settings and performs safe read-only discovery |
-| Aave V3 root-address read-only resolver | Supported | Discovers Pool, PoolConfigurator, PriceOracle, and ACLManager when local read data is available |
-| Recon on read-only TargetProtocolSpec | Supported | Runs Recon on partial read-only EVM target specs |
-| live fork mempool defense | Unsupported / Not implemented | Future phase only |
-| real transaction execution | Unsupported / Not implemented | Intentionally blocked |
-| real Aave defense bot | Unsupported / Not implemented | Future phase only |
-| EVM local JSON-RPC read-only transport | Supported in Phase 2A.1 | Localhost-only reads: chain id, code, read-only calls, storage, and balance. |
-| Aave V3 local-fork read-only discovery | Partial / Gated | Requires a user-provided local fork and root address; executable drills remain gated. |
-| Executable Aave fork drills | Not implemented | Phase 2A.1 is read-only only. |
-| Local fork transaction sending | Not supported | Read-only transport blocks send, sign, wallet, debug, txpool, and local mutation RPC methods. |
-| Local fork smoke script | Supported in Phase 2A.2 | Checks localhost fork reachability using read-only calls only. |
-| Aave V3 read-only discovery script | Supported in Phase 2A.2 | Requires local fork plus root address; reports partial/unavailable safely. |
-| Live local fork transactions | Not supported | Smoke tooling is read-only and keeps execution gated. |
-| Safe read-only target export | Supported in Phase 2A | Exports unconfirmed Aave read-only TargetProtocolSpec manifests without executable scope. |
-| Phase 2B executable fork drills | Future work | Not implemented in Phase 2A; local fork execution remains gated. |
-| Phase 2A depth audit | Supported | Documents fixture-backed CI, optional live local fork manual checks, and remaining limits. |
-| Manual live local fork smoke | Optional / Manual | User-run localhost-only read-only smoke; not run by CI. |
-| Phase 2B readiness checklist | Supported | Blocks executable fork work until live read-only and safety prerequisites are reviewed. |
-| Phase 2B fork execution design | Design only | Policy and Arena interfaces exist, but execution is disabled. |
-| EVM fork execution arena | Gated placeholder | `execute_local_intent` raises unsupported until Phase 2B approval. |
-| First harmless fork drill candidate | Design only | Snapshot/revert and liveness sentinel; no asset movement. |
+This page summarizes supported, gated, and unsupported capabilities for the
+DeFi Defense Simulation Lab.
+
+The project remains a defensive, isolated research framework. It is not a
+public-network attack tool and it is not a text-only scenario generator.
+
+
+## Compatibility status tokens
+
+The following compact status rows are kept for existing release checks.
+
+Capability | Status | Notes
+--- | --- | ---
+MockArena executable drills | Supported | Contained local runtime
+Scorecards | Supported | Recon, Red, Blue, Safety, Evaluation
+EVM Fork adapter | Gated / Not implemented | Execution blocked
+Sui Localnet adapter | Gated / Not implemented | Execution blocked
+Public network execution | Not supported | Forbidden by safety boundary
+Real private keys | Not supported | Forbidden by safety boundary
+EVM Fork Twin read-only/gated planning | Partial / Gated | Read-only Aave path
+executable EVM fork Red drills | Unsupported / Not implemented | Phase 2B gated
+Sui State Twin | Unsupported / Not implemented | Future work only
+real Aave adapter | Unsupported / Not implemented | Future work only
+real Haedal adapter | Unsupported / Not implemented | Future work only
+Aave V3 fork-twin onboarding path | Partial / Gated | Read-only, no fallback
+
+## Core supported capabilities
+
+- **MockArena executable simulation:** supported for local state-changing drills.
+- **MockArena executable drills:** supported in the contained mock runtime.
+- **Blind Blue defense:** supported with blind features and no Red answer labels.
+- **Multi-mode evaluation:** supports `defense_first`, `red_first`,
+  `gas_priority`, `private_orderflow`, and `randomized_seeded`.
+- **Protocol Twin onboarding scaffold:** distinguishes MockArena, EVM Fork Twin,
+  and Sui State Twin modes.
+- **External World Twin local emulation:** models orderflow, keepers,
+  oracle timing, liquidity, bridge stubs, offchain stubs, user intents,
+  and network conditions.
+- **Twin Fidelity Score:** reports copied, emulated, and missing coverage.
+- **Scorecards:** reports Recon, Red, Blue, Safety, and Evaluation quality.
+- **GitHub Actions CI:** runs install, tests, main demo, and MVP verification.
+- **Beginner-safe CLI summary:** `main.py` and verifier output are sanitized.
+
+## EVM / Aave read-only support
+
+- **EVM Fork Twin read-only planning:** supported as a gated read-only path.
+- **Aave V3 fork-twin onboarding path:** supported without mock fallback.
+- **EVM local JSON-RPC read-only transport:** localhost-only reads for chain id,
+  code, read-only calls, storage, and balance.
+- **Aave V3 root-address read-only resolver:** discovers core contracts when
+  local read data is available.
+- **Aave V3 reserve-aware discovery:** reads reserve metadata through safe
+  named read calls only.
+- **Recon on read-only TargetProtocolSpec:** supported for partial read-only
+  EVM target specs.
+- **Safe read-only target export:** exports unconfirmed Aave read-only manifests
+  without executable scope.
+- **Local fork smoke script:** supported as read-only localhost smoke tooling.
+- **Manual live local fork smoke:** optional and user-run; CI does not require it.
+
+## Unsupported or gated capabilities
+
+- **Executable EVM fork Red drills:** unsupported and gated.
+- **Local fork transaction sending:** unsupported; read-only transport blocks
+  send, sign, wallet, debug, txpool, and mutation RPC methods.
+- **Real transaction execution:** unsupported and intentionally blocked.
+- **Live local fork transactions:** unsupported in Phase 2A.
+- **Real Aave adapter / defense bot:** future work only.
+- **Live fork mempool defense:** future phase only.
+- **EVM Fork adapter:** gated placeholder for executable support.
+- **Sui Localnet adapter:** gated placeholder for executable support.
+- **Sui State Twin / Haedal path:** unsupported until a real Sui adapter exists.
+- **Public network execution:** forbidden by the safety boundary.
+- **Real private keys:** forbidden by the safety boundary.
+- **Real fund movement:** forbidden by the safety boundary.
 
 ## Phase 2B Preflight Support
 
-Phase 2B is still blocked and design-only. The new live-smoke support tools help a reviewer record manual read-only evidence before any future execution work is considered.
+Phase 2B is still blocked and design-only. Live-smoke support tools help a
+reviewer record manual read-only evidence before any future execution work.
 
-- `python scripts/record_live_fork_smoke_result.py ...` writes a safe markdown record from reviewed local-only fields.
-- `python scripts/phase2b_preflight.py` checks that the manual smoke record, reviewed target manifest, and dependency graph review exist.
-- The preflight is expected to report `Phase 2B readiness: FAIL` until every review artifact is present.
-- Fork execution remains disabled by default, no transactions are sent, and executable EVM fork Red drills remain unsupported.
-- Do not include upstream endpoints, secrets, reusable payloads, or raw selectors in any preflight artifact.
+- `python scripts/record_live_fork_smoke_result.py ...` writes a safe markdown
+  record from reviewed local-only fields.
+- `python scripts/phase2b_preflight.py` checks that the manual smoke record,
+  reviewed target manifest, and dependency graph review exist.
+- The preflight is expected to report `Phase 2B readiness: FAIL` until every
+  review artifact is present.
+- Fork execution remains disabled by default.
+- No transactions are sent.
+- Executable EVM fork Red drills remain unsupported.
+- Do not include upstream endpoints, secrets, reusable payloads, or raw
+  selectors in any preflight artifact.
 
 ## Phase 2A.4 Read-only Aave Reserve Metadata
 
-Aave V3 read-only discovery now attempts to read reserve metadata from the local fork after the PoolAddressesProvider resolves the Pool. The resolver asks only safe named read calls for the reserve list, per-reserve data, reserve configuration, asset price, oracle source, and ACL role labels, then feeds the discovered reserve assets, aToken/debt-token relationships, watch items, and basic configuration flags into Recon.
+Aave V3 read-only discovery reads reserve metadata after the
+PoolAddressesProvider resolves the Pool. The resolver uses safe named read calls
+for reserve list, reserve data, reserve configuration, asset price, oracle
+source, and ACL role labels.
 
-The default reserve limit is 8. A user may request a different limit, but the resolver enforces a hard cap of 50 and reports whether truncation occurred. Discovery may be full, partial, decode-unavailable, or unavailable depending on what the local fork returns. The result is still read-only: no transactions are sent, Red drills are recommendation-only, MockArena is not used as Aave fallback, and Phase 2B execution remains blocked.
+The discovered reserve assets, aToken/debt-token relationships, watch items,
+and basic configuration flags flow into Recon.
+
+The default reserve limit is 8. A user may request a different limit, but the
+resolver enforces a hard cap of 50 and reports whether truncation occurred.
+Discovery may be full, partial, decode-unavailable, or unavailable.
+
+The result is still read-only:
+
+- no transactions are sent
+- Red drills are recommendation-only
+- MockArena is not used as Aave fallback
+- Phase 2B execution remains blocked
 
 ## Phase 2A.5 evidence workflow status
 
